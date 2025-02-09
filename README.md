@@ -1,2 +1,2 @@
-# OVT Cloud Platform
+# OVT hyperconverged Cloud Platform
 
