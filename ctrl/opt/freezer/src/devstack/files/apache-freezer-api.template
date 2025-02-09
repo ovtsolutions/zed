@@ -1,0 +1,28 @@
+Listen %SERVICE_HOST%:%FREEZER_API_PORT%
+
+# Placeholder to conditionally insert a 'Listen 127.0.0.1' directive when
+# %SERVICE_HOST% is not already 127.0.0.1
+%LOCAL_LISTEN%
+
+<VirtualHost *:%FREEZER_API_PORT%>
+    WSGIDaemonProcess freezer-api processes=2 threads=2 user=%USER% display-name=%{GROUP}
+    WSGIProcessGroup freezer-api
+    WSGIApplicationGroup freezer-api
+    WSGIScriptAlias / %FREEZER_API_DIR%/freezer_api/cmd/wsgi.py
+
+    <IfVersion >= 2.4>
+      ErrorLogFormat "%M"
+    </IfVersion>
+    ErrorLog /var/log/%APACHE_NAME%/freezer-api.log
+    LogLevel warn
+    CustomLog /var/log/%APACHE_NAME%/freezer-api_access.log combined
+
+    <Directory %FREEZER_API_DIR%/freezer_api>
+      Options Indexes FollowSymLinks MultiViews
+      Require all granted
+      AllowOverride None
+      Order allow,deny
+      allow from all
+      LimitRequestBody 102400
+    </Directory>
+</VirtualHost>

@@ -1,0 +1,52 @@
+[console_scripts]
+gnocchi-amqpd = gnocchi.cli.amqpd:amqpd
+gnocchi-change-sack-size = gnocchi.cli.manage:change_sack_size
+gnocchi-config-generator = gnocchi.cli.manage:config_generator
+gnocchi-injector = gnocchi.cli.injector:injector
+gnocchi-metricd = gnocchi.cli.metricd:metricd
+gnocchi-statsd = gnocchi.cli.statsd:statsd
+gnocchi-upgrade = gnocchi.cli.manage:upgrade
+
+[gnocchi.incoming]
+ceph = gnocchi.incoming.ceph:CephStorage
+file = gnocchi.incoming.file:FileStorage
+redis = gnocchi.incoming.redis:RedisStorage
+s3 = gnocchi.incoming.s3:S3Storage
+swift = gnocchi.incoming.swift:SwiftStorage
+
+[gnocchi.indexer]
+mysql = gnocchi.indexer.sqlalchemy:SQLAlchemyIndexer
+mysql+pymysql = gnocchi.indexer.sqlalchemy:SQLAlchemyIndexer
+postgresql = gnocchi.indexer.sqlalchemy:SQLAlchemyIndexer
+postgresql+psycopg2 = gnocchi.indexer.sqlalchemy:SQLAlchemyIndexer
+
+[gnocchi.indexer.sqlalchemy.resource_type_attribute]
+bool = gnocchi.indexer.sqlalchemy_extension:BoolSchema
+datetime = gnocchi.indexer.sqlalchemy_extension:DatetimeSchema
+number = gnocchi.indexer.sqlalchemy_extension:NumberSchema
+string = gnocchi.indexer.sqlalchemy_extension:StringSchema
+uuid = gnocchi.indexer.sqlalchemy_extension:UUIDSchema
+
+[gnocchi.rest.auth_helper]
+basic = gnocchi.rest.auth_helper:BasicAuthHelper
+keystone = gnocchi.rest.auth_helper:KeystoneAuthHelper
+remoteuser = gnocchi.rest.auth_helper:RemoteUserAuthHelper
+
+[gnocchi.storage]
+ceph = gnocchi.storage.ceph:CephStorage
+file = gnocchi.storage.file:FileStorage
+redis = gnocchi.storage.redis:RedisStorage
+s3 = gnocchi.storage.s3:S3Storage
+swift = gnocchi.storage.swift:SwiftStorage
+
+[oslo.config.opts]
+gnocchi = gnocchi.opts:list_opts
+
+[oslo.config.opts.defaults]
+gnocchi = gnocchi.opts:set_defaults
+
+[oslo.policy.enforcer]
+gnocchi = gnocchi.rest.policies:get_enforcer
+
+[oslo.policy.policies]
+gnocchi = gnocchi.rest.policies:list_rules

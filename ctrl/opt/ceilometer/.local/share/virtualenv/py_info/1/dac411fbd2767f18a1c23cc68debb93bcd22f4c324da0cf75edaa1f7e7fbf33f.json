@@ -1,0 +1,71 @@
+{
+  "content": {
+    "_creators": null,
+    "architecture": 64,
+    "base_exec_prefix": "/usr",
+    "base_prefix": "/usr",
+    "distutils_install": {
+      "data": "",
+      "headers": "include/python3.9/UNKNOWN",
+      "platlib": "lib/python3.9/site-packages",
+      "purelib": "lib/python3.9/site-packages",
+      "scripts": "bin"
+    },
+    "exec_prefix": "/opt/cinder",
+    "executable": "/opt/cinder/bin/python",
+    "file_system_encoding": "utf-8",
+    "has_venv": true,
+    "implementation": "CPython",
+    "max_size": 9223372036854775807,
+    "original_executable": "/opt/cinder/bin/python",
+    "os": "posix",
+    "path": [
+      "/opt/ceilometer/lib/python3.9/site-packages/virtualenv/discovery",
+      "/usr/lib/python39.zip",
+      "/usr/lib/python3.9",
+      "/usr/lib/python3.9/lib-dynload",
+      "/opt/cinder/lib/python3.9/site-packages",
+      "/opt/cinder/src"
+    ],
+    "platform": "linux",
+    "prefix": "/opt/cinder",
+    "real_prefix": null,
+    "stdout_encoding": "utf-8",
+    "sysconfig": {
+      "makefile_filename": "/usr/lib/python3.9/config-3.9-x86_64-linux-gnu/Makefile"
+    },
+    "sysconfig_paths": {
+      "data": "{base}",
+      "include": "{installed_base}/include/python{py_version_short}{abiflags}",
+      "platlib": "{platbase}/{platlibdir}/python{py_version_short}/site-packages",
+      "platstdlib": "{platbase}/{platlibdir}/python{py_version_short}",
+      "purelib": "{base}/lib/python{py_version_short}/site-packages",
+      "scripts": "{base}/bin",
+      "stdlib": "{installed_base}/{platlibdir}/python{py_version_short}"
+    },
+    "sysconfig_scheme": null,
+    "sysconfig_vars": {
+      "PYTHONFRAMEWORK": "",
+      "abiflags": "",
+      "base": "/opt/cinder",
+      "installed_base": "/usr",
+      "platbase": "/opt/cinder",
+      "platlibdir": "lib",
+      "py_version_short": "3.9"
+    },
+    "system_executable": null,
+    "system_stdlib": "/usr/lib/python3.9",
+    "system_stdlib_platform": "/usr/lib/python3.9",
+    "version": "3.9.2 (default, Feb 28 2021, 17:03:44) \n[GCC 10.2.1 20210110]",
+    "version_info": {
+      "major": 3,
+      "micro": 2,
+      "minor": 9,
+      "releaselevel": "final",
+      "serial": 0
+    },
+    "version_nodot": "39"
+  },
+  "path": "/opt/cinder/bin/python",
+  "st_mtime": 1614531824.0
+}

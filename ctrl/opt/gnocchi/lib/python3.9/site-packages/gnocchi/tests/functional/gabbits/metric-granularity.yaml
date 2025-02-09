@@ -1,0 +1,54 @@
+fixtures:
+    - ConfigFixture
+
+defaults:
+  request_headers:
+    # User foobar
+    authorization: "basic Zm9vYmFyOg=="
+    content-type: application/json
+
+tests:
+    - name: create archive policy
+      desc: for later use
+      POST: /v1/archive_policy
+      request_headers:
+        # User admin
+        authorization: "basic YWRtaW46"
+      data:
+          name: cookies
+          definition:
+              - granularity: 1 second
+      status: 201
+
+    - name: create valid metric
+      POST: /v1/metric
+      data:
+          archive_policy_name: cookies
+      status: 201
+
+    - name: push measurements to metric
+      POST: /v1/metric/$RESPONSE['$.id']/measures
+      data:
+          - timestamp: "2015-03-06T14:33:57"
+            value: 43.1
+          - timestamp: "2015-03-06T14:34:12"
+            value: 12
+      status: 202
+
+    - name: get metric list
+      GET: /v1/metric
+      status: 200
+
+    - name: get measurements invalid granularity
+      GET: /v1/metric/$RESPONSE['$[0].id']/measures?granularity=42
+      status: 404
+      response_strings:
+        - Aggregation method 'mean' at granularity '42.0' for metric $RESPONSE['$[0].id'] does not exist
+
+    - name: get measurements granularity
+      GET: /v1/metric/$HISTORY['get metric list'].$RESPONSE['$[0].id']/measures?granularity=1&refresh=true
+      status: 200
+      response_json_paths:
+          $:
+            - ["2015-03-06T14:33:57+00:00", 1.0, 43.1]
+            - ["2015-03-06T14:34:12+00:00", 1.0, 12.0]

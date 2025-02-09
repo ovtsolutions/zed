@@ -1,0 +1,7 @@
+[run]
+branch = True
+source = octavia
+omit = octavia/tests/*
+
+[report]
+ignore_errors = True

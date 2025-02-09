@@ -1,0 +1,38 @@
+- project:
+    templates:
+      - check-requirements
+      - openstack-python3-zed-jobs
+      - openstack-python3-zed-jobs-arm64
+      - publish-openstack-docs-pti
+      - release-notes-jobs-python3
+    check:
+      jobs:
+        - openstack-tox-pylint
+        - freezer-tempest-agent
+        - freezer-tempest-scheduler
+    gate:
+      queue: freezer
+      jobs:
+        - openstack-tox-pylint
+        - freezer-tempest-agent
+        - freezer-tempest-scheduler
+
+- job:
+    name: freezer-base
+    parent: freezer-tempest-basic
+    vars:
+      tempest_test_regex: '^(freezer_tempest_plugin.tests.freezer)'
+
+- job:
+    name: freezer-ubuntu
+    parent: freezer-base
+
+- job:
+    name: freezer-centos-7
+    parent: freezer-base
+    nodeset: centos-7
+
+- job:
+    name: freezer-opensuse-15
+    parent: freezer-base
+    nodeset: opensuse-15

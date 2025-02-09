@@ -1,0 +1,5 @@
+register_project_for_upgrade octavia
+register_db_to_save octavia
+
+BASE_RUN_SMOKE=False
+TARGET_RUN_SMOKE=False

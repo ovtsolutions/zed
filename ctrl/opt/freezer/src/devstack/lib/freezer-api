@@ -1,0 +1,334 @@
+#!/usr/bin/env bash
+
+# (c) Copyright 2014,2015 Hewlett-Packard Development Company, L.P.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Install and start Freezer service
+
+# add the following to localrc:
+#   enable_service freezer-api
+#
+# Dependencies:
+# - functions
+# - OS_AUTH_URL for auth in api
+# - DEST set to the destination directory
+# - SERVICE_PASSWORD, SERVICE_TENANT_NAME for auth in api
+# - STACK_USER service user
+
+# functions called by the plugin.sh script
+# source plugin.sh <mode> [phase]
+# ---------
+# - <stack>
+#   - <stack> [pre-install]
+#   - <stack> [install]
+#     - install_freezer_api
+#   - <stack> [post-config]
+#     - configure_freezer_api
+#     - create_freezer_api_accounts
+#   - <stack> [extra]
+#     - init_freezer_api
+#     - start_freezer_api
+# - <unstack>
+#   - stop_freezer_api
+# - <clean>
+#   - cleanup_freezer_api
+
+# Save trace setting
+XTRACE=$(set +o | grep xtrace)
+set +o xtrace
+
+source $FREEZER_API_DIR/devstack/lib/elasticsearch.sh
+
+# Functions
+# ---------
+
+function is_freezer_api_enabled {
+    [[ ,${ENABLED_SERVICES} =~ ,"freezer-api" ]] && return 0
+    return 1
+}
+
+
+# executed during: clean
+function cleanup_freezer_api {
+    disable_apache_site freezer-api
+    sudo rm -f $(apache_site_config_for freezer-api)
+    if [[ "${FREEZER_BACKEND}" != "sqlalchemy" ]]; then
+        uninstall_elasticsearch
+    fi
+    sudo rm -rf $FREEZER_API_AUTH_CACHE_DIR $FREEZER_API_CONF_DIR
+}
+
+# executed during: stack install
+function install_freezer_api {
+
+    git_clone $FREEZER_API_REPO $FREEZER_API_DIR $FREEZER_API_BRANCH
+
+    if [[ "${FREEZER_BACKEND}" != "sqlalchemy" ]]; then
+       download_elasticsearch
+       install_elasticsearch
+    fi
+
+    setup_develop $FREEZER_API_DIR
+
+    if [[ "${FREEZER_API_SERVER_TYPE}" == "uwsgi" ]]; then
+        pip_install 'uwsgi'
+    fi
+}
+
+# Setup python-freezerclient
+function install_freezerclient {
+
+    git_clone $FREEZERCLIENT_REPO $FREEZERCLIENT_DIR $FREEZERCLIENT_BRANCH
+    setup_develop $FREEZERCLIENT_DIR
+}
+
+# executed during: stack post-config
+function configure_freezer_api {
+
+    [ ! -d $FREEZER_API_CONF_DIR ] && sudo mkdir -m 755 -p $FREEZER_API_CONF_DIR
+    sudo chown $USER $FREEZER_API_CONF_DIR
+
+    [ ! -d $FREEZER_API_LOG_DIR ] &&  sudo mkdir -m 755 -p $FREEZER_API_LOG_DIR
+    sudo chown $USER $FREEZER_API_LOG_DIR
+
+    sudo cp $FREEZER_API_DIR/etc/freezer/freezer-api.conf.sample $FREEZER_API_CONF_DIR/freezer-api.conf
+    sudo cp $FREEZER_API_DIR/etc/freezer/freezer-paste.ini $FREEZER_API_CONF_DIR/freezer-paste.ini
+
+    # enable debuging
+    iniset $FREEZER_API_CONF 'DEFAULT' debug True
+    iniset $FREEZER_API_CONF 'DEFAULT' log_file $FREEZER_API_LOG_DIR/freezer-api.log
+
+    # set paste configuration
+    iniset $FREEZER_API_CONF 'paste_deploy' config_file $FREEZER_API_CONF_DIR/freezer-paste.ini
+
+    # make sure the stack user has the right permissions on the config folder
+    sudo chown -R $USER $FREEZER_API_CONF_DIR
+
+    if [[ "${FREEZER_BACKEND}" == "sqlalchemy" ]]; then
+
+        #set sqlalchemy configuration
+
+        iniset $FREEZER_API_CONF 'storage' backend sqlalchemy
+        iniset $FREEZER_API_CONF 'storage' driver sqlalchemy
+        iniset $FREEZER_API_CONF 'database' connection `database_connection_url freezer`
+
+    else
+        #set elasticsearch configuration
+
+        iniset $FREEZER_API_CONF 'storage' backend elasticsearch
+        iniset $FREEZER_API_CONF 'storage' driver elasticsearch
+
+        iniset $FREEZER_API_CONF 'elasticsearch' index freezer
+        iniset $FREEZER_API_CONF 'elasticsearch' number_of_replicas 0
+        iniset $FREEZER_API_CONF 'elasticsearch' hosts http://$SERVICE_HOST:9200
+
+    fi
+
+    # create freezer_api_cache_dir
+    sudo mkdir -p $FREEZER_API_AUTH_CACHE_DIR/api
+    sudo chown $STACK_USER $FREEZER_API_AUTH_CACHE_DIR/api
+    rm -f $FREEZER_API_AUTH_CACHE_DIR/api/*
+    sudo mkdir -p $FREEZER_API_AUTH_CACHE_DIR/registry
+    sudo chown $STACK_USER $FREEZER_API_AUTH_CACHE_DIR/registry
+    rm -f $FREEZER_API_AUTH_CACHE_DIR/registry/*
+
+    # set keystone configuration
+    configure_auth_token_middleware $FREEZER_API_CONF freezer $FREEZER_API_AUTH_CACHE_DIR/api
+
+    if [[ "${FREEZER_API_SERVER_TYPE}" == "apache2" ]]; then
+        echo_summary "Configuring Freezer API wsgi app in Apache"
+        configure_apache_freezer_app
+    elif [[ "${FREEZER_API_SERVER_TYPE}" == "uwsgi" ]]; then
+        echo_summary "Configuring Freezer API wsgi app in Uwsgi"
+        configure_uwsgi_freezer_api_app
+    fi
+
+    # TODO certs and more recent options such as elasticsearch connection parameters
+}
+
+
+# executed during: stack extra
+function init_freezer_api {
+
+    if [[ "${FREEZER_BACKEND}" == "sqlalchemy" ]]; then
+        recreate_database freezer utf8
+        freezer-manage db sync
+    else
+
+       # this also waits for elasticsearch to start
+        start_elasticsearch
+        # put elasticsearch mappings
+        freezer-manage db update
+        freezer-manage db show
+    fi
+
+}
+
+
+# executed during: stack extra
+function start_freezer_api {
+
+    if [[ "${FREEZER_API_SERVER_TYPE}" == "uwsgi" ]]; then
+        # @todo (szaher) use apache2 proxy template to run api with uwsgi
+        run_process freezer-api "$FREEZER_API_BIN_DIR/uwsgi --ini $FREEZER_API_UWSGI_CONF --pidfile2 $FREEZER_API_UWSGI_MASTER_PIDFILE"
+        sleep 1
+        enable_apache_site freezer-api
+        restart_apache_server
+
+        # tail_log freezer-api /var/log/$APACHE_NAME/freezer-api.log
+
+    elif [[ "${FREEZER_API_SERVER_TYPE}" == "apache2" ]]; then
+
+        enable_apache_site freezer-api
+        restart_apache_server
+        # tail_log freezer-api /var/log/$APACHE_NAME/freezer-api.log
+        # tail_log freezer-access /var/log/$APACHE_NAME/freezer-api_access.log
+    fi
+}
+
+
+# executed during: stop
+function stop_freezer_api {
+
+    if [[ "${FREEZER_BACKEND}" != "sqlalchemy" ]]; then
+        stop_elasticsearch
+    fi
+
+    if [[ "${FREEZER_API_SERVER_TYPE}" == "uwsgi" ]]; then
+        uwsgi --stop $FREEZER_API_UWSGI_MASTER_PIDFILE
+        killall -9 uwsgi
+    fi
+
+    disable_apache_site freezer-api
+    stop_process freezer-api
+}
+
+
+# utility function
+function get_id {
+    echo `"$@" | awk '/ id / { print $4 }'`
+}
+
+
+# executed during: stack post-config
+function create_freezer_api_accounts {
+    #
+    # Setup admin user
+    #
+    SERVICE_TENANT_NAME=${SERVICE_TENANT_NAME:-service}
+    local admin_role=$(get_or_create_role "admin")
+
+    local freezer_user=$(openstack user create \
+                            --password "$SERVICE_PASSWORD" \
+                            --project "$SERVICE_TENANT_NAME" \
+                            --email "freezer@example.com" \
+                            freezer \
+                            | grep " id " | get_field 2)
+
+    get_or_add_user_project_role $admin_role $freezer_user $SERVICE_TENANT_NAME
+
+    #
+    # freezer backup service registration
+    #
+    local freezer_service=$(get_or_create_service "freezer" "backup" "Freezer Backup Service")
+
+    #
+    # freezer backup endpoint registration
+    #
+
+    if [[ "${FREEZER_API_SERVER_TYPE}" == "uwsgi" ]]; then
+        get_or_create_endpoint "$freezer_service" \
+             "$REGION_NAME" \
+             "$FREEZER_API_SERVICE_PROTOCOL://$SERVICE_HOST/backup" \
+             "$FREEZER_API_SERVICE_PROTOCOL://$SERVICE_HOST/backup" \
+             "$FREEZER_API_SERVICE_PROTOCOL://$SERVICE_HOST/backup"
+
+    elif [[ "${FREEZER_API_SERVER_TYPE}" == "apache2" ]]; then
+        get_or_create_endpoint "$freezer_service" \
+         "$REGION_NAME" \
+         "$FREEZER_API_SERVICE_PROTOCOL://$SERVICE_HOST:$FREEZER_API_PORT" \
+         "$FREEZER_API_SERVICE_PROTOCOL://$SERVICE_HOST:$FREEZER_API_PORT" \
+         "$FREEZER_API_SERVICE_PROTOCOL://$SERVICE_HOST:$FREEZER_API_PORT"
+    fi
+
+
+}
+
+
+function configure_apache_freezer_app {
+    local freezer_api_apache_conf=$(apache_site_config_for freezer-api)
+
+    # Add a %LOCAL_LISTEN% parameter to conditionally listen 127.0.0.1 when
+    # not already doing so to allow monitoring checks
+    local local_listen="Listen 127.0.0.1:$FREEZER_API_PORT"
+    if [[ "${SERVICE_HOST}" == "127.0.0.1" ]] || [[ "${SERVICE_HOST}" == "localhost" ]]; then
+        local_listen=""
+    fi
+
+    sudo cp $FREEZER_API_FILES/apache-freezer-api.template $freezer_api_apache_conf
+    sudo sed -e "
+        s|%FREEZER_API_PORT%|$FREEZER_API_PORT|g;
+        s|%SERVICE_HOST%|$SERVICE_HOST|g;
+        s|%USER%|$STACK_USER|g;
+        s|%FREEZER_API_DIR%|$FREEZER_API_DIR|g;
+        s|%APACHE_NAME%|$APACHE_NAME|g;
+        s|%VIRTUALENV%|$venv_path|g;
+        s|%LOCAL_LISTEN%|$local_listen|g
+    " -i $freezer_api_apache_conf
+}
+
+
+function configure_uwsgi_freezer_api_app {
+
+    local freezer_api_apache_conf=$(apache_site_config_for freezer-api)
+
+    # copy the uwsgi.conf to /etc/freezer/
+    sudo cp $FREEZER_API_DIR/etc/freezer/uwsgi.conf $FREEZER_API_UWSGI_CONF
+
+    local local_http="${SERVICE_HOST}:$FREEZER_API_PORT"
+    if [[ "${SERVICE_HOST}" == "127.0.0.1" ]] || [[ "${SERVICE_HOST}" == "localhost" ]]; then
+        local_http=":$FREEZER_API_PORT"
+    fi
+    iniset $FREEZER_API_UWSGI_CONF 'uwsgi'  http $local_http
+    iniset $FREEZER_API_UWSGI_CONF 'uwsgi' processes 2
+    iniset $FREEZER_API_UWSGI_CONF 'uwsgi' threads 2
+    iniset $FREEZER_API_UWSGI_CONF 'uwsgi' wsgi-file $FREEZER_API_DIR/freezer_api/cmd/wsgi.py
+
+    # Make sure the client doesn't try to re-use the connection.
+    iniset $FREEZER_API_UWSGI_CONF 'uwsgi' add-header "Connection: close"
+    iniset $FREEZER_API_UWSGI_CONF 'uwsgi' master true
+    iniset $FREEZER_API_UWSGI_CONF 'uwsgi' socket  /var/run/uwsgi/freezer-api-wsgi.socket
+    iniset $FREEZER_API_UWSGI_CONF 'uwsgi'  chmod-socket 666
+    iniset $FREEZER_API_UWSGI_CONF 'uwsgi'  lazy-apps  true
+    iniset $FREEZER_API_UWSGI_CONF 'uwsgi'  enable-threads  true
+
+    # Set die-on-term & exit-on-reload so that uwsgi shuts down
+    iniset $FREEZER_API_UWSGI_CONF 'uwsgi'  exit-on-reload  true
+    iniset $FREEZER_API_UWSGI_CONF 'uwsgi'  die-on-term  true
+
+    # uwsgi recommends this to prevent thundering herd on accept.
+    iniset $FREEZER_API_UWSGI_CONF 'uwsgi' thunder-lock true
+
+    # print the content of the uwsgi.conf after replacing values
+    cat $FREEZER_API_UWSGI_CONF
+
+    echo_summary "Configuring freezer-api uwsgi site"
+
+    sudo cp $FREEZER_API_FILES/apache2-freezer-api.conf $freezer_api_apache_conf
+
+
+}
+
+# Restore xtrace
+$XTRACE

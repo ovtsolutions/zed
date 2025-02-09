@@ -1,0 +1,181 @@
+fixtures:
+    - ConfigFixture
+
+defaults:
+  request_headers:
+    # User foobar
+    authorization: "basic Zm9vYmFyOg=="
+    content-type: application/json
+
+tests:
+    - name: create archive policy 1
+      desc: for later use
+      POST: /v1/archive_policy
+      request_headers:
+          # User admin
+          authorization: "basic YWRtaW46"
+      data:
+          name: first_archive
+          definition:
+              - granularity: 1 second
+      status: 201
+
+    - name: create archive policy 2
+      desc: for later use
+      POST: /v1/archive_policy
+      request_headers:
+        # User admin
+        authorization: "basic YWRtaW46"
+      data:
+          name: second_archive
+          definition:
+              - granularity: 1 second
+      status: 201
+
+    - name: create metric 1
+      POST: /v1/metric
+      data:
+          name: "disk.io.rate"
+          unit: "B/s"
+          archive_policy_name: first_archive
+      status: 201
+      response_json_paths:
+          $.archive_policy_name: first_archive
+          $.name: disk.io.rate
+          $.unit: B/s
+
+    - name: create metric 2
+      POST: /v1/metric
+      request_headers:
+        # User foobaz
+        authorization: "basic Zm9vYmF6Og=="
+      data:
+          name: "disk.io.rate"
+          unit: "B/s"
+          archive_policy_name: first_archive
+      status: 201
+      response_json_paths:
+          $.archive_policy_name: first_archive
+          $.name: disk.io.rate
+          $.unit: B/s
+
+    - name: create metric 3
+      POST: /v1/metric
+      request_headers:
+        # User jd
+        authorization: "basic amQ6"
+      data:
+          name: "cpu_util"
+          unit: "%"
+          archive_policy_name: first_archive
+      status: 201
+      response_json_paths:
+          $.archive_policy_name: first_archive
+          $.name: cpu_util
+          $.unit: "%"
+
+    - name: create metric 4
+      POST: /v1/metric
+      data:
+          name: "cpu"
+          unit: "ns"
+          archive_policy_name: second_archive
+      status: 201
+      response_json_paths:
+          $.archive_policy_name: second_archive
+          $.name: cpu
+          $.unit: ns
+
+    - name: list metrics
+      GET: /v1/metric
+      response_json_paths:
+          $.`len`: 4
+
+    - name: list metrics by id
+      GET: /v1/metric?id=$HISTORY['create metric 1'].$RESPONSE['id']
+      response_json_paths:
+          $.`len`: 1
+          $[0].name: disk.io.rate
+          $[0].archive_policy.name: first_archive
+
+    - name: list metrics by name
+      GET: /v1/metric?name=disk.io.rate
+      request_headers:
+        # User admin
+        authorization: "basic YWRtaW46"
+      response_json_paths:
+          $.`len`: 2
+          $[0].name: disk.io.rate
+          $[1].name: disk.io.rate
+          $[0].archive_policy.name: first_archive
+          $[1].archive_policy.name: first_archive
+
+    - name: list metrics by unit
+      GET: /v1/metric?unit=ns
+      response_json_paths:
+          $.`len`: 1
+          $[0].name: cpu
+          $[0].archive_policy.name: second_archive
+
+    - name: list metrics by archive_policy
+      GET: /v1/metric?archive_policy_name=first_archive&sort=name:desc
+      request_headers:
+        # User admin
+        authorization: "basic YWRtaW46"
+      response_json_paths:
+          $.`len`: 3
+          $[0].name: disk.io.rate
+          $[1].name: disk.io.rate
+          $[2].name: cpu_util
+          $[0].archive_policy.name: first_archive
+          $[1].archive_policy.name: first_archive
+          $[2].archive_policy.name: first_archive
+
+    - name: list metrics by archive_policy with limit and pagination links page 1
+      GET: /v1/metric?archive_policy_name=first_archive&sort=name:desc&limit=2
+      request_headers:
+        # User admin
+        authorization: "basic YWRtaW46"
+      response_headers:
+          Link: "<$SCHEME://$NETLOC/v1/metric?archive_policy_name=first_archive&limit=2&marker=$RESPONSE['$[1].id']&sort=name%3Adesc>; rel=\"next\""
+      response_json_paths:
+          $.`len`: 2
+          $[0].name: disk.io.rate
+          $[1].name: disk.io.rate
+          $[0].archive_policy.name: first_archive
+          $[1].archive_policy.name: first_archive
+
+    - name: list metrics by archive_policy with limit and pagination links page 2
+      GET: /v1/metric?archive_policy_name=first_archive&limit=2&marker=$RESPONSE['$[1].id']&sort=name:desc
+      request_headers:
+        # User admin
+        authorization: "basic YWRtaW46"
+      response_json_paths:
+          $.`len`: 1
+          $[0].name: cpu_util
+          $[0].archive_policy.name: first_archive
+
+    - name: list metrics ensure no Link header
+      GET: /v1/metric?archive_policy_name=first_archive&sort=name:desc
+      request_headers:
+        # User admin
+        authorization: "basic YWRtaW46"
+      xfail: true
+      response_headers:
+          Link: whatever
+
+    - name: list metrics by creator jd
+      GET: /v1/metric?creator=jd
+      request_headers:
+        # User admin
+        authorization: "basic YWRtaW46"
+      response_json_paths:
+          $.`len`: 1
+
+    - name: list metrics by creator foobaz
+      GET: /v1/metric?creator=foobaz
+      request_headers:
+        # User admin
+        authorization: "basic YWRtaW46"
+      response_json_paths:
+          $.`len`: 1

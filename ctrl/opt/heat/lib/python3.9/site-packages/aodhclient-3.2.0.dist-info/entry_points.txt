@@ -1,0 +1,23 @@
+[console_scripts]
+aodh = aodhclient.shell:main
+
+[keystoneauth1.plugin]
+aodh-noauth = aodhclient.noauth:AodhNoAuthLoader
+
+[openstack.alarming.v2]
+alarm create = aodhclient.v2.alarm_cli:CliAlarmCreate
+alarm delete = aodhclient.v2.alarm_cli:CliAlarmDelete
+alarm list = aodhclient.v2.alarm_cli:CliAlarmList
+alarm quota set = aodhclient.v2.quota_cli:QuotaSet
+alarm quota show = aodhclient.v2.quota_cli:QuotaShow
+alarm show = aodhclient.v2.alarm_cli:CliAlarmShow
+alarm state get = aodhclient.v2.alarm_cli:CliAlarmStateGet
+alarm state set = aodhclient.v2.alarm_cli:CliAlarmStateSet
+alarm update = aodhclient.v2.alarm_cli:CliAlarmUpdate
+alarm-history search = aodhclient.v2.alarm_history_cli:CliAlarmHistorySearch
+alarm-history show = aodhclient.v2.alarm_history_cli:CliAlarmHistoryShow
+alarming capabilities list = aodhclient.v2.capabilities_cli:CliCapabilitiesList
+
+[openstack.cli.extension]
+metric = aodhclient.osc
+

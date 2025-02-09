@@ -1,0 +1,37 @@
+[console_scripts]
+magnum-api = magnum.cmd.api:main
+magnum-conductor = magnum.cmd.conductor:main
+magnum-db-manage = magnum.cmd.db_manage:main
+magnum-driver-manage = magnum.cmd.driver_manage:main
+magnum-status = magnum.cmd.status:main
+
+[magnum.cert_manager.backend]
+barbican = magnum.common.cert_manager.barbican_cert_manager
+local = magnum.common.cert_manager.local_cert_manager
+x509keypair = magnum.common.cert_manager.x509keypair_cert_manager
+
+[magnum.database.migration_backend]
+sqlalchemy = magnum.db.sqlalchemy.migration
+
+[magnum.drivers]
+k8s_coreos_v1 = magnum.drivers.k8s_coreos_v1.driver:Driver
+k8s_fedora_atomic_v1 = magnum.drivers.k8s_fedora_atomic_v1.driver:Driver
+k8s_fedora_coreos_v1 = magnum.drivers.k8s_fedora_coreos_v1.driver:Driver
+k8s_fedora_ironic_v1 = magnum.drivers.k8s_fedora_ironic_v1.driver:Driver
+mesos_ubuntu_v1 = magnum.drivers.mesos_ubuntu_v1.driver:Driver
+swarm_fedora_atomic_v1 = magnum.drivers.swarm_fedora_atomic_v1.driver:Driver
+swarm_fedora_atomic_v2 = magnum.drivers.swarm_fedora_atomic_v2.driver:Driver
+
+[oslo.config.opts]
+magnum = magnum.opts:list_opts
+magnum.conf = magnum.conf.opts:list_opts
+
+[oslo.config.opts.defaults]
+magnum = magnum.common.config:set_config_defaults
+
+[oslo.policy.policies]
+magnum = magnum.common.policies:list_rules
+
+[wsgi_scripts]
+magnum-api-wsgi = magnum.api.app:build_wsgi_app
+

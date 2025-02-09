@@ -1,0 +1,11 @@
+[castellan.drivers]
+barbican = castellan.key_manager.barbican_key_manager:BarbicanKeyManager
+vault = castellan.key_manager.vault_key_manager:VaultKeyManager
+
+[oslo.config.driver]
+castellan = castellan._config_driver:CastellanConfigurationSourceDriver
+
+[oslo.config.opts]
+castellan.config = castellan.options:list_opts
+castellan.tests.functional.config = castellan.tests.functional.config:list_opts
+

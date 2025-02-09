@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<ns0:EntityDescriptor xmlns:ns0="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:ns1="http://www.w3.org/2000/09/xmldsig#" xmlns:ns2="urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol" xmlns:ns3="urn:oasis:names:tc:SAML:metadata:ui" ID="id-BPo6QGSfETNJjn5ob" entityID="https://proxy.test.my-academic-id.sunet.se/Saml2/proxy_saml2_backend.xml">
+  <ns0:SPSSODescriptor AuthnRequestsSigned="true" WantAssertionsSigned="true" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+    <ns0:Extensions>
+      <ns2:DiscoveryResponse Binding="urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol" Location="https://proxy.test.my-academic-id.sunet.se/Saml2/disco" index="1"/>
+      <ns3:UIInfo>
+        <ns3:DisplayName xml:lang="en">SP Display Name</ns3:DisplayName>
+        <ns3:Description xml:lang="en">SP Description</ns3:Description>
+        <ns3:Keywords xml:lang="se">Satosa SP-SE</ns3:Keywords>
+        <ns3:Keywords xml:lang="en">Satosa SP-EN</ns3:Keywords>
+        <ns3:Logo height="100" width="100">http://sp.logo.url/</ns3:Logo>
+        <ns3:InformationURL xml:lang="en">http://sp.information.url/</ns3:InformationURL>
+        <ns3:PrivacyStatementURL xml:lang="en">http://sp.privacy.url/</ns3:PrivacyStatementURL>
+      </ns3:UIInfo>
+    </ns0:Extensions>
+    <ns0:KeyDescriptor use="signing">
+      <ns1:KeyInfo>
+        <ns1:X509Data>
+          <ns1:X509Certificate>MIIF0jCCA7qgAwIBAgIJAOW7Vx4DdaTXMA0GCSqGSIb3DQEBBQUAMH4xCzAJBgNVBAYTAkdSMQ8wDQYDVQQIDAZBdGhlbnMxDzANBgNVBAcMBkF0aGVuczEQMA4GA1UECgwHQ1N0cmVhbTEWMBQGA1UEAwwNODkuNDUuMjM0LjIyOTEjMCEGCSqGSIb3DQEJARYUaW9wYXJhc2tldkBnbWFpbC5jb20wHhcNMTkwNjEyMTg1NjExWhcNMjkwNjA5MTg1NjExWjB+MQswCQYDVQQGEwJHUjEPMA0GA1UECAwGQXRoZW5zMQ8wDQYDVQQHDAZBdGhlbnMxEDAOBgNVBAoMB0NTdHJlYW0xFjAUBgNVBAMMDTg5LjQ1LjIzNC4yMjkxIzAhBgkqhkiG9w0BCQEWFGlvcGFyYXNrZXZAZ21haWwuY29tMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA3cgyu60+frdtMqYVikoJa0lStVslNBNI4Z6N2gGtWRALUYy0qszu4TZV3ZPwZqCNYeTwF1X907zB+CBIG7XD5LqrjV+eL309Itl0TKn1734oDuBWLYr04R/up//XJdUxpWBrqfiyKZ8LrOt/otGbCy6ScvfDgpD1YbkIGf03t9mSXrKc/5DnqgzWQ8HyAvvXYgt6oEP05zPvIp/JK1H8bmncGIeThQ8sJRq22hVGc1Ucc1R4zkjUFm4yEE5Lr2kKIUAIu2WHjO6E/1/M8UUUwCVlm3wXJEBsePunC9muFokhgpGumFmZVnL4TErRt4SJR3Ccq6L/L9wVU1/P6sfvyMB1WWEdEcV3v3qPq7JBSGTvM2EQJaj17C9nbmzpEKNwYbkEpfhiBlVzQvD5kh5qCy0OhjUBktmPlyKLpsKMCJGOsU9k2wieJWAVZi6oISXPsRYHSACunt0XIyG3gqYeuaPBJpjm8j756RLW6ojgS55PMTZ6T39fUrtMs0VwUvgZmTGHUJczWk1lNaJfbPpUrfIRtrc4Y0GH7nEYEm5L+emg+Usd7/ZYGLeQBwZ0gQ7xTJUx5vGh52HI2Z65OowMhqE0dYbyL0OcGRLJPo6ROncB+5eY6h6sxUBOocQSKnjDdru6LaP90i5Qyh+PIGmXnLitz7xCuQK+PbqmrXkiHBECAwEAAaNTMFEwHQYDVR0OBBYEFBXNbtZdFv5kTvA7FpJQTRmQZ+XKMB8GA1UdIwQYMBaAFBXNbtZdFv5kTvA7FpJQTRmQZ+XKMA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQEFBQADggIBAMlaxFkvGfziReB8yvZFju+LmvFiDjH/YHymFykOuYcVoBcEfrZWCd31P3tqWb2vzIT0PFCgM3hPcimSIZY4goi38cv9S15a57m/i6pi93OwO+ugIoDPPfPzLlK6N5rlv/iF9p8Y314eshWkX9YTxXQDzUKn6gj0OjQh9J1+h6FqZEbO/iMD4igURl5xYP3lkze7hxrl5lZBG1uaS9fhj5n/BsxTE6EyhS7r5CySpLDID1KyundOztokh5hhzJ4XKBqKFC6YodnrU1ERGM3pj0/qYYGTJ8brib05IEjF/J6ijAjs3oJ6lNrLxu6bjFKqlundovuvQIiuoYj13jPAugMw6S8N+iMG+vKskdXEWryV7/gs2Dd0b4l2b/XpUSOJXKpXu0wZ4pxjfnXka4hJa6ss1nFZ9+MyBjabHs5fzAsJkdDPp39KVKZ+tjhNvtYVrfaMoXnc7Qbak6vLTHRJazZGXhpYNxcSkFy+a6Zx47TSwdqFlmKz/v1WYxaRICCIhOMVBknXki8OR4CXFIMt5gMCZEf82EHZvhVxfXkpQ7VCHFK/Pf6iINNl8AOpgYPMxYPwwwG+JTJKIz3Ldf30gA39koIYCEJCSTsFFCf4lDg+lW2OidIGAkJFEqo/iCjnRBR+h3lTBL/3/9qnAw9LUzmIHBLX/E7TOIWxRbpPmEiQ</ns1:X509Certificate>
+        </ns1:X509Data>
+      </ns1:KeyInfo>
+    </ns0:KeyDescriptor>
+    <ns0:KeyDescriptor use="encryption">
+      <ns0:EncryptionMethod Algorithm="http://www.w3.org/2001/04/xmlenc#rsa1_5"/>
+      <ns1:KeyInfo>
+        <ns1:X509Data>
+          <ns1:X509Certificate>MIIF0jCCA7qgAwIBAgIJAOW7Vx4DdaTXMA0GCSqGSIb3DQEBBQUAMH4xCzAJBgNVBAYTAkdSMQ8wDQYDVQQIDAZBdGhlbnMxDzANBgNVBAcMBkF0aGVuczEQMA4GA1UECgwHQ1N0cmVhbTEWMBQGA1UEAwwNODkuNDUuMjM0LjIyOTEjMCEGCSqGSIb3DQEJARYUaW9wYXJhc2tldkBnbWFpbC5jb20wHhcNMTkwNjEyMTg1NjExWhcNMjkwNjA5MTg1NjExWjB+MQswCQYDVQQGEwJHUjEPMA0GA1UECAwGQXRoZW5zMQ8wDQYDVQQHDAZBdGhlbnMxEDAOBgNVBAoMB0NTdHJlYW0xFjAUBgNVBAMMDTg5LjQ1LjIzNC4yMjkxIzAhBgkqhkiG9w0BCQEWFGlvcGFyYXNrZXZAZ21haWwuY29tMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA3cgyu60+frdtMqYVikoJa0lStVslNBNI4Z6N2gGtWRALUYy0qszu4TZV3ZPwZqCNYeTwF1X907zB+CBIG7XD5LqrjV+eL309Itl0TKn1734oDuBWLYr04R/up//XJdUxpWBrqfiyKZ8LrOt/otGbCy6ScvfDgpD1YbkIGf03t9mSXrKc/5DnqgzWQ8HyAvvXYgt6oEP05zPvIp/JK1H8bmncGIeThQ8sJRq22hVGc1Ucc1R4zkjUFm4yEE5Lr2kKIUAIu2WHjO6E/1/M8UUUwCVlm3wXJEBsePunC9muFokhgpGumFmZVnL4TErRt4SJR3Ccq6L/L9wVU1/P6sfvyMB1WWEdEcV3v3qPq7JBSGTvM2EQJaj17C9nbmzpEKNwYbkEpfhiBlVzQvD5kh5qCy0OhjUBktmPlyKLpsKMCJGOsU9k2wieJWAVZi6oISXPsRYHSACunt0XIyG3gqYeuaPBJpjm8j756RLW6ojgS55PMTZ6T39fUrtMs0VwUvgZmTGHUJczWk1lNaJfbPpUrfIRtrc4Y0GH7nEYEm5L+emg+Usd7/ZYGLeQBwZ0gQ7xTJUx5vGh52HI2Z65OowMhqE0dYbyL0OcGRLJPo6ROncB+5eY6h6sxUBOocQSKnjDdru6LaP90i5Qyh+PIGmXnLitz7xCuQK+PbqmrXkiHBECAwEAAaNTMFEwHQYDVR0OBBYEFBXNbtZdFv5kTvA7FpJQTRmQZ+XKMB8GA1UdIwQYMBaAFBXNbtZdFv5kTvA7FpJQTRmQZ+XKMA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQEFBQADggIBAMlaxFkvGfziReB8yvZFju+LmvFiDjH/YHymFykOuYcVoBcEfrZWCd31P3tqWb2vzIT0PFCgM3hPcimSIZY4goi38cv9S15a57m/i6pi93OwO+ugIoDPPfPzLlK6N5rlv/iF9p8Y314eshWkX9YTxXQDzUKn6gj0OjQh9J1+h6FqZEbO/iMD4igURl5xYP3lkze7hxrl5lZBG1uaS9fhj5n/BsxTE6EyhS7r5CySpLDID1KyundOztokh5hhzJ4XKBqKFC6YodnrU1ERGM3pj0/qYYGTJ8brib05IEjF/J6ijAjs3oJ6lNrLxu6bjFKqlundovuvQIiuoYj13jPAugMw6S8N+iMG+vKskdXEWryV7/gs2Dd0b4l2b/XpUSOJXKpXu0wZ4pxjfnXka4hJa6ss1nFZ9+MyBjabHs5fzAsJkdDPp39KVKZ+tjhNvtYVrfaMoXnc7Qbak6vLTHRJazZGXhpYNxcSkFy+a6Zx47TSwdqFlmKz/v1WYxaRICCIhOMVBknXki8OR4CXFIMt5gMCZEf82EHZvhVxfXkpQ7VCHFK/Pf6iINNl8AOpgYPMxYPwwwG+JTJKIz3Ldf30gA39koIYCEJCSTsFFCf4lDg+lW2OidIGAkJFEqo/iCjnRBR+h3lTBL/3/9qnAw9LUzmIHBLX/E7TOIWxRbpPmEiQ</ns1:X509Certificate>
+        </ns1:X509Data>
+      </ns1:KeyInfo>
+    </ns0:KeyDescriptor>
+    <ns0:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</ns0:NameIDFormat>
+    <ns0:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://proxy.test.my-academic-id.sunet.se/Saml2/acs/post" index="1"/>
+  </ns0:SPSSODescriptor>
+  <ns0:Organization>
+    <ns0:OrganizationName xml:lang="en">Computation Stream Org.</ns0:OrganizationName>
+    <ns0:OrganizationDisplayName xml:lang="en">Computation Stream</ns0:OrganizationDisplayName>
+    <ns0:OrganizationURL xml:lang="en">https://computation.stream</ns0:OrganizationURL>
+  </ns0:Organization>
+  <ns0:ContactPerson contactType="technical">
+    <ns0:GivenName>Technical</ns0:GivenName>
+    <ns0:EmailAddress>technical@example.com</ns0:EmailAddress>
+  </ns0:ContactPerson>
+  <ns0:ContactPerson contactType="support">
+    <ns0:GivenName>Support</ns0:GivenName>
+    <ns0:EmailAddress>support@example.com</ns0:EmailAddress>
+  </ns0:ContactPerson>
+</ns0:EntityDescriptor>

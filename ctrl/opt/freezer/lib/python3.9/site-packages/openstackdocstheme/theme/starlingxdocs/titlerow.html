@@ -1,0 +1,32 @@
+<div class="row">
+  <div class="col-lg-8">
+    {%- if theme_sidebar_dropdown == 'os_docs' %}
+      <h2>{{ title }}</h2>
+    {% else %}
+      <h2>StarlingX API Documentation</h2>
+    {%- endif %}
+  </div>
+  <div class="docs-actions">
+    {%- block otherversions %}
+      {%- if other_versions %}
+      <div class="version-dropdown">
+        <span>{{ _('version') }}</span>
+        <div class="version-dropdown-content">
+          {%- for ver in other_versions: %}
+            <p><a href="../{{pathto(ver, 1) }}" rel="nofollow">{{ ver }}</a></p>
+          {%- endfor %}
+        </div>
+      </div>
+      {%- endif %}
+    {%- endblock %}
+    {% if prev %}
+    <a href="{{ prev.link|e }}"><i class="fa fa-angle-double-left" data-toggle="tooltip" data-placement="top" title="Previous: {{ prev.title|striptags }}"></i></a>
+    {% endif %}
+    {% if next %}
+    <a href="{{ next.link|e }}"><i class="fa fa-angle-double-right" data-toggle="tooltip" data-placement="top" title="Next: {{ next.title|striptags }}"></i></a>
+    {% endif %}
+    {%- if bug_project %}
+    <a id="logABugLink1" href="" target="_blank" title="Found an error? Report a bug against this page"><i class="fa fa-bug" data-toggle="tooltip" data-placement="top" title="Report a Bug"></i></a>
+    {% endif %}
+  </div>
+</div>

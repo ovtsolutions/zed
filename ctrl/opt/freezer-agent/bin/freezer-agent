@@ -1,0 +1,10 @@
+#!/opt/freezer-agent/bin/python
+# PBR Generated from 'console_scripts'
+
+import sys
+
+from freezer.main import main
+
+
+if __name__ == "__main__":
+    sys.exit(main())

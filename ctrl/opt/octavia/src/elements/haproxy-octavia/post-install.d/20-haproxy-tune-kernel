@@ -1,0 +1,40 @@
+#!/bin/bash
+
+set -eu
+set -o pipefail
+
+sysctl-write-value net.ipv4.tcp_max_tw_buckets 5800000
+sysctl-write-value net.ipv4.tcp_max_orphans 5800000
+sysctl-write-value net.ipv4.tcp_max_syn_backlog 100000
+sysctl-write-value net.ipv4.tcp_keepalive_time 300
+sysctl-write-value net.ipv4.tcp_tw_reuse 1
+sysctl-write-value net.core.somaxconn 65534  # netns aware
+sysctl-write-value net.ipv4.tcp_synack_retries 3
+sysctl-write-value net.core.netdev_max_backlog 100000
+# This should allow HAProxy maxconn to be 1,000,000
+sysctl-write-value fs.file-max 2600000  # netns aware
+sysctl-write-value fs.nr_open 2600000  # netns aware
+
+# It's ok for these to fail if conntrack module isn't loaded
+sysctl-write-value net.netfilter.nf_conntrack_tcp_timeout_time_wait 5 || true
+sysctl-write-value net.netfilter.nf_conntrack_tcp_timeout_fin_wait 5 || true
+
+# Enable MTU icmp black hole detection (RFC4821)
+sysctl-write-value net.ipv4.tcp_mtu_probing 1
+
+sysctl-write-value net.ipv4.tcp_fin_timeout 5
+sysctl-write-value net.ipv4.ip_nonlocal_bind 1
+sysctl-write-value net.ipv6.ip_nonlocal_bind 1
+sysctl-write-value net.core.rmem_max 67108864
+sysctl-write-value net.core.wmem_max 67108864
+sysctl-write-value net.ipv4.tcp_rmem "4096 87380 33554432"
+sysctl-write-value net.ipv4.tcp_wmem "4096 87380 33554432"
+sysctl-write-value net.ipv4.ip_local_port_range "1025 65534"
+
+# Allow unprivileged users to send ICMP echo requests
+# https://bugzilla.redhat.com/show_bug.cgi?id=2037807
+# This sysctl is already included in /usr/lib/sysctl.d/50-default.conf on Centos
+# 8 Stream (with a '-'' prefix that prevents sysctl from throwing an error if
+# the setting doesn't exist in the kernel), but sysctl --system doesn't apply it
+# correctly when creating the amphora-haproxy namespace.
+sysctl-write-value net.ipv4.ping_group_range "0 2147483647"

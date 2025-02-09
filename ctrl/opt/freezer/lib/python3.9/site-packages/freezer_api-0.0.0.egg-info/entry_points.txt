@@ -1,0 +1,21 @@
+[console_scripts]
+freezer-api = freezer_api.cmd.api:main
+freezer-manage = freezer_api.cmd.manage:main
+freezer-manager-status = freezer_api.cmd.status:main
+
+[freezer.db.backends]
+elasticsearch = freezer_api.db.elasticsearch.driver:ElasticSearchDB
+sqlalchemy = freezer_api.db.sqlalchemy.driver:SQLDriver
+
+[oslo.config.opts]
+freezer-api = freezer_api.common.config:list_opts
+
+[oslo.config.opts.defaults]
+freezer-api = freezer_api.common.config:set_lib_defaults
+
+[oslo.policy.policies]
+freezer-api = freezer_api.common.policies:list_rules
+
+[wsgi_scripts]
+freezer-api-wsgi = freezer_api.service:initialize_app
+

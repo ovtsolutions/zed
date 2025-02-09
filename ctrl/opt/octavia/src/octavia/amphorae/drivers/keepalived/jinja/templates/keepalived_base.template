@@ -1,0 +1,78 @@
+{#
+# Copyright 2015 Hewlett Packard Enterprise Development Company LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#}
+vrrp_script check_script {
+    script {{ check_script_path }}
+    interval {{ vrrp_check_interval }}
+    fall {{ vrrp_fail_count }}
+    rise {{ vrrp_success_count }}
+}
+
+vrrp_instance {{ vrrp_group_name }} {
+    state {{ amp_role }}
+    interface {{ amp_intf }}
+    virtual_router_id {{ amp_vrrp_id }}
+    priority {{ amp_priority }}
+    nopreempt
+    accept
+    garp_master_refresh {{ vrrp_garp_refresh }}
+    garp_master_refresh_repeat {{ vrrp_garp_refresh_repeat }}
+    advert_int {{ advert_int }}
+    authentication {
+        auth_type {{ vrrp_auth_type }}
+        auth_pass {{ vrrp_auth_pass }}
+    }
+
+    unicast_src_ip {{ amp_vrrp_ip }}
+    unicast_peer {
+{% for amp_vrrp_ip in peers_vrrp_ips %}
+        {{ amp_vrrp_ip }}
+{% endfor %}
+    }
+
+    virtual_ipaddress {
+{% for vip in vips if not vip.excluded %}
+        {{ vip.ip_address }}
+{% endfor %}
+    }
+
+    virtual_ipaddress_excluded {
+{% for vip in vips if vip.excluded %}
+        {{ vip.ip_address }}
+{% endfor %}
+    }
+
+    virtual_routes {
+{% for vip in vips %}
+        {{ vip.network_cidr }} dev {{ amp_intf }} src {{ vip.ip_address }} scope link table 1
+    {% if vip.gateway %}
+        default via {{ vip.gateway }} dev {{ amp_intf }} onlink table 1
+    {% endif %}
+    {% for host_route in vip.host_routes %}
+        {{ host_route.destination }} dev {{ amp_intf }} gateway {{ host_route.nexthop }} onlink table 1
+    {% endfor %}
+{% endfor %}
+    }
+
+    virtual_rules {
+{% for vip in vips %}
+        from {{ vip.ip_address }}/{{ '128' if vip.ipv6 else '32' }} table 1 priority 100
+{% endfor %}
+    }
+
+    track_script {
+        check_script
+    }
+}

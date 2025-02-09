@@ -1,0 +1,82 @@
+- hosts: all
+  tasks:
+    # Workaround for Red Hat like distros: SELinux prevents diskimage-builder
+    # from creating a RPM DB dir in a chroot on Centos 9 Stream
+    - name: Disable SELinux on Red Hat distributions
+      selinux:
+        state: disabled
+      become: yes
+      when:
+        - ansible_os_family == 'RedHat'
+    - name: Install apt packages
+      apt:
+        pkg: "{{ item }}"
+        state: "latest"
+        update_cache: yes
+      register: install_packages
+      become: yes
+      until: install_packages is success
+      retries: 5
+      delay: 2
+      with_items:
+        - qemu-utils
+        - uuid-runtime
+        - curl
+        - kpartx
+        - python3-yaml
+        - debootstrap
+        - qemu
+        - bc
+        - python3-venv
+        - python3-setuptools
+      when:
+        - ansible_os_family == 'Debian'
+    - name: Install rpm packages
+      dnf:
+        pkg: "{{ item }}"
+        state: "latest"
+        update_cache: yes
+      register: install_packages
+      become: yes
+      until: install_packages is success
+      retries: 5
+      delay: 2
+      with_items:
+        - qemu-img
+        - uuid
+        - curl
+        - kpartx
+        - python3-pyyaml
+        - qemu-kvm
+        - python3-setuptools
+        - yum
+      when:
+        - ansible_os_family == 'RedHat'
+    - name: Install required pip packages
+      pip:
+        name: "{{  item }}"
+        state: "latest"
+        virtualenv: /var/tmp/venv
+        virtualenv_command: python3 -m venv
+      register: install_packages
+      until: install_packages is success
+      retries: 5
+      delay: 2
+      become: yes
+      with_items:
+        - diskimage-builder
+    - name: Ensure artifacts/images directory exists
+      file:
+        path: '{{ ansible_user_dir }}/test-images'
+        state: directory
+    - name: Build an amphora image for publishing
+      shell: >-
+        . /var/tmp/venv/bin/activate && \
+        ./diskimage-create.sh -o {{ ansible_user_dir }}/test-images/test-only-amphora-x64-haproxy-{{ amphora_os }}-{{ amphora_os_release }}.qcow2 \
+              -i {{ amphora_os }} \
+              -d {{ amphora_os_release }} \
+              -s {{ amphora_image_size | default(2) }}
+      args:
+        chdir: "{{ ansible_user_dir }}/src/opendev.org/openstack/octavia/diskimage-create"
+      tags:
+        - skip_ansible_lint

@@ -1,0 +1,53 @@
+fixtures:
+    - ConfigFixture
+
+defaults:
+  request_headers:
+    # User foobar
+    authorization: "basic Zm9vYmFyOg=="
+    content-type: application/json
+
+tests:
+    - name: create archive policy
+      desc: for later use
+      POST: /v1/archive_policy
+      request_headers:
+        # User admin
+        authorization: "basic YWRtaW46"
+      data:
+          name: cookies
+          definition:
+              - granularity: 1 second
+      status: 201
+
+    - name: create metric
+      POST: /v1/metric
+      data:
+          archive_policy_name: cookies
+      status: 201
+      response_json_paths:
+          $.archive_policy_name: cookies
+
+    - name: push measurements to metric with relative timestamp
+      POST: /v1/metric/$RESPONSE['$.id']/measures
+      data:
+          - timestamp: "-5 minutes"
+            value: 43.1
+      status: 202
+
+    - name: create metric 2
+      POST: /v1/metric
+      data:
+          archive_policy_name: cookies
+      status: 201
+      response_json_paths:
+          $.archive_policy_name: cookies
+
+    - name: push measurements to metric with mixed timestamps
+      POST: /v1/metric/$RESPONSE['$.id']/measures
+      data:
+          - timestamp: 1478012832
+            value: 43.1
+          - timestamp: "-5 minutes"
+            value: 43.1
+      status: 400

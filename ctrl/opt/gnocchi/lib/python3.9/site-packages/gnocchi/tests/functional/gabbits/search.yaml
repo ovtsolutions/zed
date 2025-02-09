@@ -1,0 +1,260 @@
+#
+# Test the search API to achieve coverage of just the
+# SearchController and SearchResourceController class code.
+#
+
+fixtures:
+    - ConfigFixture
+
+defaults:
+  request_headers:
+    # User foobar
+    authorization: "basic Zm9vYmFyOg=="
+    content-type: application/json
+
+tests:
+    - name: typo of search
+      GET: /v1/search/notexists
+      status: 404
+
+    - name: typo of search in resource
+      GET: /v1/search/resource/foobar
+      status: 404
+
+    # FIXME(sileht): this test looks wrong, it talks about invalidity
+    # but asserts it return 200...
+    - name: search with invalid uuid
+      POST: /v1/search/resource/generic
+      data:
+        =:
+          id: "cd9eef"
+
+    - name: search invalid and value
+      request_headers:
+        accept: application/json
+      desc: and should be followed by a list, not dict
+      POST: /v1/search/resource/generic
+      data:
+        and:
+          project_id: foobar
+      status: 400
+      response_json_paths:
+        $.description.cause: "Invalid input"
+        $.description.reason: "/^expected a list for dictionary value @ data/"
+        $.description.detail: ["and"]
+
+    - name: search like id
+      request_headers:
+        accept: application/json
+      POST: /v1/search/resource/generic
+      data:
+        like:
+          id: fa%
+      status: 400
+      response_json_paths:
+        $.description.cause: "Invalid input"
+        $.description.reason: "value must not be one of ['id'] @ data['like']['id']"
+        $.description.detail: ["like", "id"]
+
+    - name: search like list id
+      request_headers:
+        accept: application/json
+      POST: /v1/search/resource/generic
+      data:
+        like:
+          id:
+            - fa%
+      status: 400
+      response_json_paths:
+        $.description.cause: "Invalid input"
+        $.description.reason: "value must not be one of ['id'] @ data['like']['id']"
+        $.description.detail: ["like", "id"]
+
+    - name: search invalid ne value
+      request_headers:
+        accept: application/json
+      desc: attribute value for binary operator must not be dict or list
+      POST: /v1/search/resource/generic
+      data:
+        ne:
+          project_id:
+            - foobar
+      status: 400
+      response_json_paths:
+        $.description.cause: "Invalid input"
+        $.description.reason: "/^expected (unicode|str) for dictionary value @ data/"
+        $.description.detail: ["ne", "project_id"]
+
+    - name: search invalid not value
+      request_headers:
+        accept: application/json
+      desc: uninary operator must follow by dict, not list
+      POST: /v1/search/resource/generic
+      data:
+        not:
+          - project_id: foobar
+      status: 400
+      response_json_paths:
+        $.description.cause: "Invalid input"
+        $.description.reason: "/^expected a dictionary for dictionary value @ data/"
+        $.description.detail: ["not"]
+
+    - name: post generic resource
+      POST: /v1/resource/generic
+      data:
+          id: faef212f-0bf4-4030-a461-2186fef79be0
+          started_at: "2014-01-03T02:02:02.000000"
+          user_id: 0fbb231484614b1a80131fc22f6afc9c
+          project_id: f3d41b770cc14f0bb94a1d5be9c0e3ea
+      status: 201
+
+    - name: post generic resource twice
+      POST: /v1/resource/generic
+      data:
+          id: df7e5e75-6a1d-4ff7-85cb-38eb9d75da7e
+          started_at: "2014-01-03T02:02:02.000000"
+          user_id: 0fbb231484614b1a80131fc22f6afc9c
+          project_id: f3d41b770cc14f0bb94a1d5be9c0e3ea
+      status: 201
+
+    - name: search in_
+      POST: /v1/search/resource/generic
+      data:
+        in:
+          id:
+            - faef212f-0bf4-4030-a461-2186fef79be0
+            - df7e5e75-6a1d-4ff7-85cb-38eb9d75da7e
+      response_json_paths:
+        $.`len`: 2
+
+    - name: search eq created_by_project_id
+      POST: /v1/search/resource/generic
+      data:
+        eq:
+          created_by_project_id: f3d41b770cc14f0bb94a1d5be9c0e3ea
+      response_json_paths:
+        $.`len`: 0
+
+    - name: search eq creator
+      POST: /v1/search/resource/generic
+      data:
+        eq:
+          creator: "foobar"
+      response_json_paths:
+        $.`len`: 2
+
+    - name: search like
+      POST: /v1/search/resource/generic
+      data:
+        like:
+          creator: foo%
+      response_json_paths:
+        $.`len`: 2
+
+    - name: search invalid query string
+      POST: /v1/search/resource/generic?filter=id%20%3D%3D%20foobar
+      status: 400
+      response_strings:
+        - "Invalid filter: Expected"
+
+    - name: search in_ query string
+      POST: /v1/search/resource/generic?filter=id%20in%20%5Bfaef212f-0bf4-4030-a461-2186fef79be0%2C%20df7e5e75-6a1d-4ff7-85cb-38eb9d75da7e%5D
+      response_json_paths:
+        $.`len`: 2
+
+    - name: search not in_ query string
+      POST: /v1/search/resource/generic?filter=not%20id%20in%20%5Bfaef212f-0bf4-4030-a461-2186fef79be0%2C%20df7e5e75-6a1d-4ff7-85cb-38eb9d75da7e%5D
+      response_json_paths:
+        $.`len`: 0
+
+    - name: search empty in_
+      POST: /v1/search/resource/generic
+      data:
+        in:
+          id: []
+      status: 400
+      response_strings:
+        - length of value must be at least 1
+
+    - name: search empty in_ query string
+      POST: /v1/search/resource/generic?filter=id%20in%20%5B%5D
+      status: 400
+      response_strings:
+        - length of value must be at least 1
+
+    - name: search empty query
+      POST: /v1/search/resource/generic
+      data: {}
+      response_json_paths:
+        $.`len`: 2
+
+    - name: search empty query page 1
+      POST: /v1/search/resource/generic?limit=1
+      data: {}
+      response_headers:
+        link: "<$SCHEME://$NETLOC/v1/search/resource/generic?limit=1&marker=faef212f-0bf4-4030-a461-2186fef79be0&sort=revision_start%3Aasc&sort=started_at%3Aasc>; rel=\"next\""
+      response_json_paths:
+        $.`len`: 1
+
+    - name: search empty query last page
+      POST: /v1/search/resource/generic?marker=faef212f-0bf4-4030-a461-2186fef79be0&sort=revision_start:asc&sort=started_at:asc
+      data: {}
+      response_forbidden_headers:
+        - link
+      response_json_paths:
+        $.`len`: 1
+
+    - name: post generic resource with project/user
+      POST: /v1/resource/generic
+      data:
+          id: 95573760-b085-4e69-9280-91f66fc3ed3c
+          started_at: "2014-01-03T02:02:02.000000"
+      status: 201
+
+    - name: search empty query again
+      POST: /v1/search/resource/generic
+      data: {}
+      response_json_paths:
+        $.`len`: 3
+
+    - name: search all resource not foobar
+      POST: /v1/search/resource/generic
+      data:
+        ne:
+          project_id: foobar
+      response_json_paths:
+        $.`len`: 3
+
+    - name: search all resource with attrs param
+      POST: /v1/search/resource/generic?attrs=id&attrs=started_at&attrs=user_id
+      data: {}
+      response_json_paths:
+        $[0].`len`: 3
+        $[0].id: $RESPONSE['$[0].id']
+        $[0].started_at: $RESPONSE['$[0].started_at']
+        $[0].user_id: $RESPONSE['$[0].user_id']
+        $[1].`len`: 3
+
+    - name: search all resource with invalid attrs param
+      POST: /v1/search/resource/generic?attrs=id&attrs=foo&attrs=bar
+      data: {}
+      response_json_paths:
+        $[0].`len`: 1
+        $[0].id: $RESPONSE['$[0].id']
+        $[1].`len`: 1
+
+    - name: search all resource without attrs param
+      POST: /v1/search/resource/generic
+      data: {}
+      response_json_paths:
+        $[0].`len`: 13
+        $[1].`len`: 13
+
+    - name: search all resource without attrs header
+      POST: /v1/search/resource/generic
+      data: {}
+      request_headers:
+        Accept: "application/json"
+      response_json_paths:
+        $[0].`len`: 13
+        $[1].`len`: 13

@@ -1,0 +1,15 @@
+[console_scripts]
+stestr = stestr.cli:main
+
+[stestr.cm]
+failing = stestr.commands.failing:Failing
+history_list = stestr.commands.history:HistoryList
+history_remove = stestr.commands.history:HistoryRemove
+history_show = stestr.commands.history:HistoryShow
+init = stestr.commands.init:Init
+last = stestr.commands.last:Last
+list = stestr.commands.list:List
+load = stestr.commands.load:Load
+run = stestr.commands.run:Run
+slowest = stestr.commands.slowest:Slowest
+

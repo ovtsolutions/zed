@@ -1,0 +1,56 @@
+#
+# Test async processing of measures.
+#
+
+fixtures:
+    - ConfigFixture
+
+defaults:
+  request_headers:
+    # User foobar
+    authorization: "basic Zm9vYmFyOg=="
+    content-type: application/json
+
+tests:
+
+    - name: create archive policy
+      POST: /v1/archive_policy
+      request_headers:
+          # User admin
+          authorization: "basic YWRtaW46"
+      data:
+          name: moderate
+          definition:
+              - granularity: 1 second
+      status: 201
+
+    - name: make a generic resource
+      POST: /v1/resource/generic
+      data:
+          id: 41937416-1644-497d-a0ed-b43d55a2b0ea
+          started_at: "2015-06-06T02:02:02.000000"
+          metrics:
+              some.counter:
+                  archive_policy_name: moderate
+      status: 201
+
+    - name: confirm no metrics yet
+      GET: /v1/resource/generic/41937416-1644-497d-a0ed-b43d55a2b0ea/metric/some.counter/measures
+      response_json_paths:
+          $: []
+
+    - name: post some measures
+      POST: /v1/resource/generic/41937416-1644-497d-a0ed-b43d55a2b0ea/metric/some.counter/measures
+      data:
+          - timestamp: "2015-06-06T14:33:00"
+            value: 11
+          - timestamp: "2015-06-06T14:35:00"
+            value: 12
+      status: 202
+
+    - name: get some measures
+      GET: /v1/resource/generic/41937416-1644-497d-a0ed-b43d55a2b0ea/metric/some.counter/measures?refresh=true
+      response_strings:
+          - "2015"
+      response_json_paths:
+          $[-1][-1]: 12

@@ -1,0 +1,60 @@
+#!/bin/bash
+
+if [ ${DIB_DEBUG_TRACE:-0} -gt 0 ]; then
+    set -x
+fi
+set -eu
+set -o pipefail
+
+SCRIPTDIR=$(dirname $0)
+AMP_VENV=/opt/amphora-agent-venv
+
+/usr/bin/python3 -m venv $AMP_VENV
+
+$AMP_VENV/bin/pip install pip --upgrade
+
+$AMP_VENV/bin/pip install -U -c /opt/upper-constraints.txt /opt/amphora-agent
+
+# Let's capture the git reference we installed in the venv
+git  --git-dir=/opt/amphora-agent/.git rev-parse HEAD >> /opt/amphora-agent.gitref
+
+# Link the amphora-agent out to /usr/local/bin where the startup scripts look
+ln -s $AMP_VENV/bin/amphora-agent /usr/local/bin/amphora-agent || true
+
+# Also link out the vrrp check script(s) so they're in PATH for keepalived
+ln -s $AMP_VENV/bin/haproxy-vrrp-* /usr/local/bin/ || true
+
+# Link health checker script
+ln -s $AMP_VENV/bin/amphora-health-checker /usr/local/bin/amphora-health-checker || true
+
+# Link amphora interface script
+ln -s $AMP_VENV/bin/amphora-interface /usr/local/bin/amphora-interface || true
+
+# Link the prometheus proxy
+ln -s $AMP_VENV/bin/prometheus-proxy /usr/local/bin/prometheus-proxy || true
+
+mkdir /etc/octavia
+# we assume certs, etc will come in through the config drive
+mkdir /etc/octavia/certs
+mkdir -p /var/lib/octavia
+
+install -D -g root -o root -m 0644 ${SCRIPTDIR}/amphora-agent.logrotate /etc/logrotate.d/amphora-agent
+
+case "$DIB_INIT_SYSTEM" in
+    upstart)
+        install -D -g root -o root -m 0644 ${SCRIPTDIR}/amphora-agent.conf /etc/init/amphora-agent.conf
+        install -D -g root -o root -m 0644 ${SCRIPTDIR}/prometheus-proxy.conf /etc/init/prometheus-proxy.conf
+        ;;
+    systemd)
+        install -D -g root -o root -m 0644 ${SCRIPTDIR}/amphora-agent.service /usr/lib/systemd/system/amphora-agent.service
+        install -D -g root -o root -m 0644 ${SCRIPTDIR}/prometheus-proxy.service /usr/lib/systemd/system/prometheus-proxy.service
+        ;;
+    sysv)
+        install -D -g root -o root -m 0644 ${SCRIPTDIR}/amphora-agent.init /etc/init.d/amphora-agent.init
+        install -D -g root -o root -m 0644 ${SCRIPTDIR}/prometheus-proxy.init /etc/init.d/prometheus-proxy.init
+        ;;
+    *)
+        echo "Unsupported init system"
+        exit 1
+        ;;
+esac

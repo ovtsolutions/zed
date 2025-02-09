@@ -1,0 +1,71 @@
+Metadata-Version: 2.1
+Name: neutron-fwaas
+Version: 17.0.0
+Summary: OpenStack Networking FWaaS
+Home-page: https://docs.openstack.org/neutron-fwaas/latest/
+Author: OpenStack
+Author-email: openstack-discuss@lists.openstack.org
+License: UNKNOWN
+Platform: UNKNOWN
+Classifier: Environment :: OpenStack
+Classifier: Intended Audience :: Information Technology
+Classifier: Intended Audience :: System Administrators
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3 :: Only
+Requires-Python: >=3.8
+Requires-Dist: SQLAlchemy (>=1.4.23)
+Requires-Dist: alembic (>=1.6.5)
+Requires-Dist: eventlet (!=0.18.3,!=0.20.1,>=0.18.2)
+Requires-Dist: netaddr (>=0.7.18)
+Requires-Dist: neutron-lib (>=2.19.0)
+Requires-Dist: neutron (>=13.0.0.0b1)
+Requires-Dist: os-ken (>=0.3.0)
+Requires-Dist: oslo.config (>=5.2.0)
+Requires-Dist: oslo.db (>=4.37.0)
+Requires-Dist: oslo.log (>=3.36.0)
+Requires-Dist: oslo.messaging (>=5.29.0)
+Requires-Dist: oslo.privsep (>=1.32.0)
+Requires-Dist: oslo.service (!=1.28.1,>=1.24.0)
+Requires-Dist: oslo.utils (>=3.33.0)
+Requires-Dist: pbr (>=4.0.0)
+Requires-Dist: pyzmq (>=14.3.1)
+Requires-Dist: pyroute2 (>=0.7.2) ; (sys_platform!='win32')
+
+========================
+Team and repository tags
+========================
+
+.. image:: https://governance.openstack.org/tc/badges/neutron-fwaas.svg
+    :target: https://governance.openstack.org/tc/reference/tags/index.html
+
+.. Change things from this point on
+
+Welcome!
+========
+
+This package contains the code for the Neutron Firewall as a Service
+(FWaaS) service. This package requires Neutron to run.
+
+External Resources:
+===================
+
+The homepage for Neutron is: https://launchpad.net/neutron.  Use this
+site for asking for help, and filing bugs. We use a single Launchpad
+page for all Neutron projects.
+
+Code is available on git.openstack.org at:
+<https://opendev.org/openstack/neutron-fwaas>.
+
+Please refer to Neutron documentation for more information:
+`Neutron README.rst <https://opendev.org/openstack/neutron/src/branch/master/README.rst>`_
+
+Get release notes:
+`Neutron FWaaS Release Notes <https://docs.openstack.org/releasenotes/neutron-fwaas/>`_
+
+
+

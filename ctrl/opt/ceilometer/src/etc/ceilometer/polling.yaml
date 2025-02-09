@@ -1,0 +1,19 @@
+---
+sources:
+    - name: some_pollsters
+      interval: 300
+      meters:
+        - cpu
+        - cpu_l3_cache
+        - memory.usage
+        - network.incoming.bytes
+        - network.incoming.packets
+        - network.outgoing.bytes
+        - network.outgoing.packets
+        - disk.device.read.bytes
+        - disk.device.read.requests
+        - disk.device.write.bytes
+        - disk.device.write.requests
+        - volume.size
+        - volume.snapshot.size
+        - volume.backup.size

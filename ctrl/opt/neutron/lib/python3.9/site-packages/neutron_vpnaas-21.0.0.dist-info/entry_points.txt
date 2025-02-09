@@ -1,0 +1,26 @@
+[console_scripts]
+neutron-vpn-netns-wrapper = neutron_vpnaas.services.vpn.common.netns_wrapper:main
+
+[device_drivers]
+neutron.services.vpn.device_drivers.ipsec.OpenSwanDriver = neutron_vpnaas.services.vpn.device_drivers.ipsec:OpenSwanDriver
+
+[neutron.agent.l3.extensions]
+vpnaas = neutron_vpnaas.services.vpn.agent:L3WithVPNaaS
+
+[neutron.db.alembic_migrations]
+neutron-vpnaas = neutron_vpnaas.db.migration:alembic_migrations
+
+[neutron.policies]
+neutron-vpnaas = neutron_vpnaas.policies:list_rules
+
+[neutron.service_plugins]
+neutron.services.vpn.plugin.VPNDriverPlugin = neutron_vpnaas.services.vpn.plugin:VPNDriverPlugin
+vpnaas = neutron_vpnaas.services.vpn.plugin:VPNDriverPlugin
+
+[oslo.config.opts]
+neutron.vpnaas = neutron_vpnaas.opts:list_opts
+neutron.vpnaas.agent = neutron_vpnaas.opts:list_agent_opts
+
+[oslo.policy.policies]
+neutron-vpnaas = neutron_vpnaas.policies:list_rules
+

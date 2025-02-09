@@ -1,0 +1,128 @@
+Metadata-Version: 2.1
+Name: gnocchi
+Version: 4.6.2
+Summary: Metric as a Service
+Home-page: http://gnocchi.osci.io
+Author: Gnocchi developers
+Classifier: Intended Audience :: Information Technology
+Classifier: Intended Audience :: System Administrators
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Topic :: System :: Monitoring
+Description-Content-Type: text/x-rst
+License-File: LICENSE
+License-File: AUTHORS
+Requires-Dist: numpy >=1.14.0
+Requires-Dist: iso8601
+Requires-Dist: oslo.config >=3.22.0
+Requires-Dist: oslo.policy >=3.5.0
+Requires-Dist: oslo.middleware >=3.22.0
+Requires-Dist: pytimeparse
+Requires-Dist: pecan >=0.9
+Requires-Dist: jsonpatch
+Requires-Dist: cotyledon >=1.5.0
+Requires-Dist: stevedore
+Requires-Dist: ujson
+Requires-Dist: voluptuous >=0.8.10
+Requires-Dist: werkzeug
+Requires-Dist: tenacity >=5.0.0
+Requires-Dist: WebOb >=1.4.1
+Requires-Dist: Paste
+Requires-Dist: PasteDeploy
+Requires-Dist: daiquiri
+Requires-Dist: pyparsing >=2.2.0
+Requires-Dist: lz4 >=0.9.0
+Requires-Dist: tooz >=1.38
+Requires-Dist: cachetools
+Requires-Dist: futures ; python_version < "3"
+Requires-Dist: trollius ; python_version < "3.4"
+Provides-Extra: amqp1
+Requires-Dist: python-qpid-proton >=0.17.0 ; extra == 'amqp1'
+Provides-Extra: ceph
+Provides-Extra: ceph_alternative
+Requires-Dist: python-rados >=12.2.0 ; extra == 'ceph_alternative'
+Provides-Extra: doc
+Requires-Dist: sphinx <7 ; extra == 'doc'
+Requires-Dist: sphinx-rtd-theme ; extra == 'doc'
+Requires-Dist: sphinxcontrib-httpdomain ; extra == 'doc'
+Requires-Dist: PyYAML ; extra == 'doc'
+Requires-Dist: Jinja2 ; extra == 'doc'
+Requires-Dist: reno >=1.6.2 ; extra == 'doc'
+Provides-Extra: keystone
+Requires-Dist: keystonemiddleware !=4.19.0,>=4.0.0 ; extra == 'keystone'
+Provides-Extra: mysql
+Requires-Dist: pymysql ; extra == 'mysql'
+Requires-Dist: oslo.db >=4.29.0 ; extra == 'mysql'
+Requires-Dist: sqlalchemy >=1.4.24 ; extra == 'mysql'
+Requires-Dist: sqlalchemy-utils ; extra == 'mysql'
+Requires-Dist: alembic !=0.8.1,!=0.9.0,>=0.7.6 ; extra == 'mysql'
+Provides-Extra: postgresql
+Requires-Dist: psycopg2 ; extra == 'postgresql'
+Requires-Dist: oslo.db >=4.29.0 ; extra == 'postgresql'
+Requires-Dist: sqlalchemy >=1.4.24 ; extra == 'postgresql'
+Requires-Dist: sqlalchemy-utils ; extra == 'postgresql'
+Requires-Dist: alembic !=0.8.1,!=0.9.0,>=0.7.6 ; extra == 'postgresql'
+Provides-Extra: prometheus
+Requires-Dist: python-snappy ; extra == 'prometheus'
+Requires-Dist: protobuf >=3.19.0 ; extra == 'prometheus'
+Provides-Extra: redis
+Requires-Dist: redis >=3.3.0 ; extra == 'redis'
+Requires-Dist: hiredis ; extra == 'redis'
+Provides-Extra: s3
+Requires-Dist: boto3 ; extra == 's3'
+Requires-Dist: botocore >=1.5 ; extra == 's3'
+Provides-Extra: swift
+Requires-Dist: python-swiftclient >=3.1.0 ; extra == 'swift'
+Provides-Extra: test
+Requires-Dist: pifpaf[ceph,gnocchi] >=1.0.1 ; extra == 'test'
+Requires-Dist: gabbi >=1.37.0 ; extra == 'test'
+Requires-Dist: coverage >=3.6 ; extra == 'test'
+Requires-Dist: fixtures ; extra == 'test'
+Requires-Dist: python-subunit >=0.0.18 ; extra == 'test'
+Requires-Dist: stestr >=2.0.0 ; extra == 'test'
+Requires-Dist: testscenarios ; extra == 'test'
+Requires-Dist: testresources >=0.2.4 ; extra == 'test'
+Requires-Dist: testtools >=0.9.38 ; extra == 'test'
+Requires-Dist: WebTest >=3.0 ; extra == 'test'
+Requires-Dist: keystonemiddleware !=4.19.0,>=4.0.0 ; extra == 'test'
+Requires-Dist: wsgi-intercept >=1.4.1 ; extra == 'test'
+Requires-Dist: xattr !=0.9.4 ; extra == 'test'
+Provides-Extra: test-swift
+Requires-Dist: python-swiftclient ; extra == 'test-swift'
+
+===============================
+ Gnocchi - Metric as a Service
+===============================
+
+.. image:: https://badge.fury.io/py/gnocchi.svg
+    :target: https://badge.fury.io/py/gnocchi
+
+.. image:: doc/source/_static/gnocchi-logo.png
+
+Gnocchi is an open-source time series database.
+
+The problem that Gnocchi solves is the storage and indexing of time series
+data and resources at a large scale. This is useful in modern cloud platforms
+which are not only huge but also are dynamic and potentially multi-tenant.
+Gnocchi takes all of that into account.
+
+Gnocchi has been designed to handle large amounts of aggregates being stored
+while being performant, scalable and fault-tolerant. While doing this, the goal
+was to be sure to not build any hard dependency on any complex storage system.
+
+Gnocchi takes a unique approach to time series storage: rather than storing
+raw data points, it aggregates them before storing them. This built-in feature
+is different from most other time series databases, which usually support
+this mechanism as an option and compute aggregation (average, minimum, etc.) at
+query time.
+
+Because Gnocchi computes all the aggregations at ingestion, getting the data
+back is extremely fast, as it just needs to read back the pre-computed results.
+
+You can read the full documentation online at http://gnocchi.osci.io.

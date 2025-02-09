@@ -1,0 +1,267 @@
+#"context_is_admin": "role:admin"
+
+#"admin_or_owner": "is_admin:True or project_id:%(project_id)s"
+
+#"admin_api": "rule:context_is_admin"
+
+#"admin_or_user": "is_admin:True or user_id:%(user_id)s"
+
+#"cluster_user": "user_id:%(trustee_user_id)s"
+
+#"deny_cluster_user": "not domain_id:%(trustee_domain_id)s"
+
+# Create a new bay.
+# POST  /v1/bays
+#"bay:create": "rule:deny_cluster_user"
+
+# Delete a bay.
+# DELETE  /v1/bays/{bay_ident}
+#"bay:delete": "rule:deny_cluster_user"
+
+# Retrieve a list of bays with detail.
+# GET  /v1/bays
+#"bay:detail": "rule:deny_cluster_user"
+
+# Retrieve information about the given bay.
+# GET  /v1/bays/{bay_ident}
+#"bay:get": "rule:deny_cluster_user"
+
+# Retrieve a list of bays.
+# GET  /v1/bays/
+#"bay:get_all": "rule:deny_cluster_user"
+
+# Update an existing bay.
+# PATCH  /v1/bays/{bay_ident}
+#"bay:update": "rule:deny_cluster_user"
+
+# Create a new baymodel.
+# POST  /v1/baymodels
+#"baymodel:create": "rule:deny_cluster_user"
+
+# Delete a baymodel.
+# DELETE  /v1/baymodels/{baymodel_ident}
+#"baymodel:delete": "rule:deny_cluster_user"
+
+# Retrieve a list of baymodel with detail.
+# GET  /v1/baymodels
+#"baymodel:detail": "rule:deny_cluster_user"
+
+# Retrieve information about the given baymodel.
+# GET  /v1/baymodels/{baymodel_ident}
+#"baymodel:get": "rule:deny_cluster_user"
+
+# Retrieve a list of baymodel.
+# GET  /v1/baymodels
+#"baymodel:get_all": "rule:deny_cluster_user"
+
+# Update an existing baymodel.
+# PATCH  /v1/baymodels/{baymodel_ident}
+#"baymodel:update": "rule:deny_cluster_user"
+
+# Publish an existing baymodel.
+# POST  /v1/baymodels
+# PATCH  /v1/baymodels
+#"baymodel:publish": "rule:admin_api"
+
+# Sign a new certificate by the CA.
+# POST  /v1/certificates
+#"certificate:create": "rule:admin_or_user or rule:cluster_user"
+
+# Retrieve CA information about the given bay/cluster.
+# GET  /v1/certificates/{bay_uuid/cluster_uuid}
+#"certificate:get": "rule:admin_or_user or rule:cluster_user"
+
+# Rotate the CA certificate on the given bay/cluster.
+# PATCH  /v1/certificates/{bay_uuid/cluster_uuid}
+#"certificate:rotate_ca": "rule:admin_or_owner"
+
+# Create a new cluster.
+# POST  /v1/clusters
+#"cluster:create": "rule:deny_cluster_user"
+
+# Delete a cluster.
+# DELETE  /v1/clusters/{cluster_ident}
+#"cluster:delete": "rule:deny_cluster_user"
+
+# Delete a cluster from any project.
+# DELETE  /v1/clusters/{cluster_ident}
+#"cluster:delete_all_projects": "rule:admin_api"
+
+# Retrieve a list of clusters with detail.
+# GET  /v1/clusters
+#"cluster:detail": "rule:deny_cluster_user"
+
+# Retrieve a list of clusters with detail across projects.
+# GET  /v1/clusters
+#"cluster:detail_all_projects": "rule:admin_api"
+
+# Retrieve information about the given cluster.
+# GET  /v1/clusters/{cluster_ident}
+#"cluster:get": "rule:deny_cluster_user"
+
+# Retrieve information about the given cluster across projects.
+# GET  /v1/clusters/{cluster_ident}
+#"cluster:get_one_all_projects": "rule:admin_api"
+
+# Retrieve a list of clusters.
+# GET  /v1/clusters/
+#"cluster:get_all": "rule:deny_cluster_user"
+
+# Retrieve a list of all clusters across projects.
+# GET  /v1/clusters/
+#"cluster:get_all_all_projects": "rule:admin_api"
+
+# Update an existing cluster.
+# PATCH  /v1/clusters/{cluster_ident}
+#"cluster:update": "rule:deny_cluster_user"
+
+# Update the health status of an existing cluster.
+# PATCH  /v1/clusters/{cluster_ident}
+#"cluster:update_health_status": "rule:admin_or_user or rule:cluster_user"
+
+# Update an existing cluster.
+# PATCH  /v1/clusters/{cluster_ident}
+#"cluster:update_all_projects": "rule:admin_api"
+
+# Resize an existing cluster.
+# POST  /v1/clusters/{cluster_ident}/actions/resize
+#"cluster:resize": "rule:deny_cluster_user"
+
+# Upgrade an existing cluster.
+# POST  /v1/clusters/{cluster_ident}/actions/upgrade
+#"cluster:upgrade": "rule:deny_cluster_user"
+
+# Upgrade an existing cluster across all projects.
+# POST  /v1/clusters/{cluster_ident}/actions/upgrade
+#"cluster:upgrade_all_projects": "rule:admin_api"
+
+# Create a new cluster template.
+# POST  /v1/clustertemplates
+#"clustertemplate:create": "rule:deny_cluster_user"
+
+# Delete a cluster template.
+# DELETE  /v1/clustertemplate/{clustertemplate_ident}
+#"clustertemplate:delete": "rule:admin_or_owner"
+
+# Delete a cluster template from any project.
+# DELETE  /v1/clustertemplate/{clustertemplate_ident}
+#"clustertemplate:delete_all_projects": "rule:admin_api"
+
+# Retrieve a list of cluster templates with detail across projects.
+# GET  /v1/clustertemplates
+#"clustertemplate:detail_all_projects": "rule:admin_api"
+
+# Retrieve a list of cluster templates with detail.
+# GET  /v1/clustertemplates
+#"clustertemplate:detail": "rule:deny_cluster_user"
+
+# Retrieve information about the given cluster template.
+# GET  /v1/clustertemplate/{clustertemplate_ident}
+#"clustertemplate:get": "rule:deny_cluster_user"
+
+# Retrieve information about the given cluster template across
+# project.
+# GET  /v1/clustertemplate/{clustertemplate_ident}
+#"clustertemplate:get_one_all_projects": "rule:admin_api"
+
+# Retrieve a list of cluster templates.
+# GET  /v1/clustertemplates
+#"clustertemplate:get_all": "rule:deny_cluster_user"
+
+# Retrieve a list of cluster templates across projects.
+# GET  /v1/clustertemplates
+#"clustertemplate:get_all_all_projects": "rule:admin_api"
+
+# Update an existing cluster template.
+# PATCH  /v1/clustertemplate/{clustertemplate_ident}
+#"clustertemplate:update": "rule:admin_or_owner"
+
+# Update an existing cluster template.
+# PATCH  /v1/clustertemplate/{clustertemplate_ident}
+#"clustertemplate:update_all_projects": "rule:admin_api"
+
+# Publish an existing cluster template.
+# POST  /v1/clustertemplates
+# PATCH  /v1/clustertemplates
+#"clustertemplate:publish": "rule:admin_api"
+
+# Create a new federation.
+# POST  /v1/federations
+#"federation:create": "rule:deny_cluster_user"
+
+# Delete a federation.
+# DELETE  /v1/federations/{federation_ident}
+#"federation:delete": "rule:deny_cluster_user"
+
+# Retrieve a list of federations with detail.
+# GET  /v1/federations
+#"federation:detail": "rule:deny_cluster_user"
+
+# Retrieve information about the given federation.
+# GET  /v1/federations/{federation_ident}
+#"federation:get": "rule:deny_cluster_user"
+
+# Retrieve a list of federations.
+# GET  /v1/federations/
+#"federation:get_all": "rule:deny_cluster_user"
+
+# Update an existing federation.
+# PATCH  /v1/federations/{federation_ident}
+#"federation:update": "rule:deny_cluster_user"
+
+# Retrieve a list of magnum-services.
+# GET  /v1/mservices
+#"magnum-service:get_all": "rule:admin_api"
+
+# Create quota.
+# POST  /v1/quotas
+#"quota:create": "rule:admin_api"
+
+# Delete quota for a given project_id and resource.
+# DELETE  /v1/quotas/{project_id}/{resource}
+#"quota:delete": "rule:admin_api"
+
+# Retrieve Quota information for the given project_id.
+# GET  /v1/quotas/{project_id}/{resource}
+#"quota:get": "rule:admin_or_owner"
+
+# Retrieve a list of quotas.
+# GET  /v1/quotas
+#"quota:get_all": "rule:admin_api"
+
+# Update quota for a given project_id.
+# PATCH  /v1/quotas/{project_id}/{resource}
+#"quota:update": "rule:admin_api"
+
+# Retrieve magnum stats.
+# GET  /v1/stats
+#"stats:get_all": "rule:admin_or_owner"
+
+# Retrieve information about the given nodegroup.
+# GET  /v1/clusters/{cluster_id}/nodegroup/{nodegroup}
+#"nodegroup:get": "rule:admin_or_owner"
+
+# Retrieve a list of nodegroups that belong to a cluster.
+# GET  /v1/clusters/{cluster_id}/nodegroups/
+#"nodegroup:get_all": "rule:admin_or_owner"
+
+# Retrieve a list of nodegroups across projects.
+# GET  /v1/clusters/{cluster_id}/nodegroups/
+#"nodegroup:get_all_all_projects": "rule:admin_api"
+
+# Retrieve infornation for a given nodegroup.
+# GET  /v1/clusters/{cluster_id}/nodegroups/{nodegroup}
+#"nodegroup:get_one_all_projects": "rule:admin_api"
+
+# Create a new nodegroup.
+# POST  /v1/clusters/{cluster_id}/nodegroups/
+#"nodegroup:create": "rule:admin_or_owner"
+
+# Delete a nodegroup.
+# DELETE  /v1/clusters/{cluster_id}/nodegroups/{nodegroup}
+#"nodegroup:delete": "rule:admin_or_owner"
+
+# Update an existing nodegroup.
+# PATCH  /v1/clusters/{cluster_id}/nodegroups/{nodegroup}
+#"nodegroup:update": "rule:admin_or_owner"
+

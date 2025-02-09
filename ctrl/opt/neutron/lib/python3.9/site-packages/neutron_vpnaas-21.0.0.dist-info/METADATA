@@ -1,0 +1,66 @@
+Metadata-Version: 2.1
+Name: neutron-vpnaas
+Version: 21.0.0
+Summary: OpenStack Networking VPN as a Service
+Home-page: https://docs.openstack.org/neutron-vpnaas/latest/
+Author: OpenStack
+Author-email: openstack-discuss@lists.openstack.org
+License: UNKNOWN
+Platform: UNKNOWN
+Classifier: Environment :: OpenStack
+Classifier: Intended Audience :: Information Technology
+Classifier: Intended Audience :: System Administrators
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Requires-Python: >=3.8
+Requires-Dist: Jinja2 (>=2.10)
+Requires-Dist: SQLAlchemy (>=1.3.0)
+Requires-Dist: alembic (>=1.6.5)
+Requires-Dist: netaddr (>=0.7.18)
+Requires-Dist: neutron-lib (>=2.6.0)
+Requires-Dist: neutron (>=17.0.0)
+Requires-Dist: oslo.concurrency (>=3.26.0)
+Requires-Dist: oslo.config (>=8.0.0)
+Requires-Dist: oslo.db (>=4.44.0)
+Requires-Dist: oslo.log (>=4.5.0)
+Requires-Dist: oslo.messaging (>=7.0.0)
+Requires-Dist: oslo.reports (>=1.18.0)
+Requires-Dist: oslo.serialization (>=2.25.0)
+Requires-Dist: oslo.service (>=1.31.0)
+Requires-Dist: oslo.utils (>=4.5.0)
+Requires-Dist: pbr (>=4.0.0)
+
+Welcome!
+========
+
+This package contains the code for the Neutron VPN as a Service
+(VPNaaS) service. This includes third-party drivers. This package
+requires Neutron to run.
+
+External Resources:
+===================
+
+The homepage for Neutron is: https://launchpad.net/neutron.  Use this
+site for asking for help, and filing bugs. We use a single Launchpad
+page for all Neutron projects.
+
+Code is available on opendev.org at:
+https://opendev.org/openstack/neutron-vpnaas.
+
+Please refer to Neutron documentation for more information:
+`Neutron README.rst <https://opendev.org/openstack/neutron/src/branch/master/README.rst>`_
+
+Team and repository tags
+========================
+
+.. image:: https://governance.openstack.org/tc/badges/neutron-vpnaas.svg
+    :target: https://governance.openstack.org/tc/reference/tags/index.html
+
+
+

@@ -1,0 +1,10 @@
+#!/opt/freezer/bin/python
+# PBR Generated from 'console_scripts'
+
+import sys
+
+from freezer_api.cmd.manage import main
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,24 @@
+[console_scripts]
+glance-rootwrap = oslo_rootwrap.cmd:main
+
+[glance_store.drivers]
+cinder = glance_store._drivers.cinder:Store
+file = glance_store._drivers.filesystem:Store
+glance.store.cinder.Store = glance_store._drivers.cinder:Store
+glance.store.filesystem.Store = glance_store._drivers.filesystem:Store
+glance.store.http.Store = glance_store._drivers.http:Store
+glance.store.rbd.Store = glance_store._drivers.rbd:Store
+glance.store.s3.Store = glance_store._drivers.s3:Store
+glance.store.swift.Store = glance_store._drivers.swift:Store
+glance.store.vmware_datastore.Store = glance_store._drivers.vmware_datastore:Store
+http = glance_store._drivers.http:Store
+no_conf = glance_store.tests.fakes:UnconfigurableStore
+rbd = glance_store._drivers.rbd:Store
+s3 = glance_store._drivers.s3:Store
+swift = glance_store._drivers.swift:Store
+vmware = glance_store._drivers.vmware_datastore:Store
+
+[oslo.config.opts]
+glance.multi_store = glance_store.multi_backend:_list_config_opts
+glance.store = glance_store.backend:_list_opts
+

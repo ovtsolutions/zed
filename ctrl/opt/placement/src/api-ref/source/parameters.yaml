@@ -1,0 +1,929 @@
+# variables in header
+location:
+  description: |
+    The location URL of the resource created,
+    HTTP header "Location: <Location URL>" will be returned.
+  in: header
+  required: true
+  type: string
+
+# variables in path
+consumer_uuid: &consumer_uuid
+  type: string
+  in: path
+  required: true
+  description: >
+    The uuid of a consumer.
+resource_class_path: &resource_class_path
+  type: string
+  in: path
+  required: true
+  description: >
+    The name of one resource class.
+resource_class_path_custom: &resource_class_path_custom
+  type: string
+  in: path
+  required: true
+  description: >
+    The name of one resource class. The name must start with
+    the prefix ``CUSTOM_``. If not, the request returns a ``Bad Request (400)``
+    response code.
+resource_provider_uuid_path: &resource_provider_uuid_path
+  type: string
+  in: path
+  required: true
+  description: >
+    The uuid of a resource provider.
+trait_name:
+  type: string
+  in: path
+  required: true
+  description: >
+    The name of a trait.
+
+# variables in query
+allocation_candidates_group_policy:
+  type: string
+  in: query
+  required: false
+  min_version: 1.25
+  description: >
+    When more than one ``resourcesN`` query parameter is supplied,
+    ``group_policy`` is required to indicate how the groups should interact.
+    With ``group_policy=none``, separate groupings - with or without a suffix -
+    may or may not be satisfied by the same provider. With
+    ``group_policy=isolate``, suffixed groups are guaranteed to be satisfied by
+    *different* providers - though there may still be overlap with the
+    suffixless group.
+allocation_candidates_in_tree: &allocation_candidates_in_tree
+  type: string
+  in: query
+  required: false
+  description: >
+    A string representing a resource provider uuid. When supplied, it will
+    filter the returned allocation candidates to only those resource providers
+    that are in the same tree with the given resource provider.
+  min_version: 1.31
+allocation_candidates_in_tree_granular:
+  <<: *allocation_candidates_in_tree
+  description: >
+    A string representing a resource provider uuid. The parameter key is
+    ``in_treeN``, where ``N`` represents a suffix corresponding with a
+    ``resourcesN`` parameter. When supplied, it will filter the returned
+    allocation candidates for that suffixed group to only those resource
+    providers that are in the same tree with the given resource provider.
+
+    **In microversions 1.25 - 1.32** the suffix is a number.
+
+    **Starting from microversion 1.33** the suffix is a string that may be 1-64
+    characters long and consist of numbers, ``a-z``, ``A-Z``, ``-``, and ``_``.
+allocation_candidates_limit:
+  type: integer
+  in: query
+  required: false
+  min_version: 1.16
+  description: >
+    A positive integer used to limit the maximum number of allocation
+    candidates returned in the response.
+allocation_candidates_member_of:
+  type: string
+  in: query
+  required: false
+  description: >
+    A string representing an aggregate uuid; or the prefix ``in:`` followed by
+    a comma-separated list of strings representing aggregate uuids. The
+    resource providers in the allocation request in the response must directly
+    or via the root provider be associated with the aggregate or aggregates
+    identified by uuid::
+
+        member_of=5e08ea53-c4c6-448e-9334-ac4953de3cfa
+        member_of=in:42896e0d-205d-4fe3-bd1e-100924931787,5e08ea53-c4c6-448e-9334-ac4953de3cfa
+
+    **Starting from microversion 1.24** specifying multiple ``member_of`` query
+    string parameters is possible. Multiple ``member_of`` parameters will
+    result in filtering providers that are directly or via root provider
+    associated with aggregates listed in all of the ``member_of`` query string
+    values. For example, to get the providers that are associated with
+    aggregate A as well as associated with any of aggregates B or C, the user
+    could issue the following query::
+
+        member_of=AGGA_UUID&member_of=in:AGGB_UUID,AGGC_UUID
+
+    **Starting from microversion 1.32** specifying forbidden aggregates is
+    supported in the ``member_of`` query string parameter. Forbidden aggregates
+    are prefixed with a ``!``. This negative expression can also be used in
+    multiple ``member_of`` parameters::
+
+        member_of=AGGA_UUID&member_of=!AGGB_UUID
+
+    would translate logically to "Candidate resource providers must be in AGGA
+    and *not* in AGGB."
+
+    We do NOT support ``!`` on the values within ``in:``, but we support
+    ``!in:``. Both of the following two example queries return candidate
+    resource providers that are NOT in AGGA, AGGB, or AGGC::
+
+        member_of=!in:AGGA_UUID,AGGB_UUID,AGGC_UUID
+        member_of=!AGGA_UUID&member_of=!AGGB_UUID&member_of=!AGGC_UUID
+
+    We do not check if the same aggregate uuid is in both positive and negative
+    expression to return 400 BadRequest. We still return 200 for such cases.
+    For example::
+
+        member_of=AGGA_UUID&member_of=!AGGA_UUID
+
+    would return empty ``allocation_requests`` and ``provider_summaries``,
+    while::
+
+        member_of=in:AGGA_UUID,AGGB_UUID&member_of=!AGGA_UUID
+
+    would return resource providers that are NOT in AGGA but in AGGB.
+  min_version: 1.21
+allocation_candidates_member_of_granular:
+  type: string
+  in: query
+  required: false
+  description: >
+    A string representing an aggregate uuid; or the prefix ``in:`` followed by
+    a comma-separated list of strings representing aggregate uuids. The
+    returned resource providers must directly be associated with at least one
+    of the aggregates identified by uuid.
+
+    **Starting from microversion 1.32** specifying forbidden aggregates is
+    supported. Forbidden aggregates are expressed with a ``!`` prefix; or the
+    prefix ``!in:`` followed by a comma-separated list of strings representing
+    aggregate uuids. The returned resource providers must not directly be
+    associated with any of the aggregates identified by uuid.
+
+    The parameter key is ``member_ofN``, where ``N`` represents a suffix
+    corresponding with a ``resourcesN`` parameter.  The value format is the
+    same as for the (not granular) ``member_of`` parameter; but all of the
+    resources and traits specified in a granular grouping will always be
+    satisfied by the same resource provider.
+
+    **In microversions 1.25 - 1.32** the suffix is a number.
+
+    **Starting from microversion 1.33** the suffix is a string that may be 1-64
+    characters long and consist of numbers, ``a-z``, ``A-Z``, ``-``, and ``_``.
+
+    Separate groupings - with or without a suffix - may or may not be satisfied
+    by the same provider, depending on the value of the ``group_policy``
+    parameter.
+
+    It is an error to specify a ``member_ofN`` parameter without a
+    corresponding ``resourcesN`` parameter with the same suffix.
+  min_version: 1.25
+allocation_candidates_root_required:
+  type: string
+  in: query
+  required: false
+  min_version: 1.35
+  description: |
+    A comma-separated list of trait requirements that the root provider of the
+    (non-sharing) tree must satisfy::
+
+        root_required=COMPUTE_SUPPORTS_MULTI_ATTACH,!CUSTOM_WINDOWS_LICENSED
+
+    Allocation requests in the response will be limited to those whose
+    (non-sharing) tree's root provider satisfies the specified trait
+    requirements. Traits which are forbidden (must **not** be present on the
+    root provider) are expressed by prefixing the trait with a ``!``.
+allocation_candidates_same_subtree:
+  type: string
+  in: query
+  required: false
+  min_version: 1.36
+  description: |
+    A comma-separated list of request group suffix strings ($S). Each must
+    exactly match a suffix on a granular group somewhere else in the request.
+    Importantly, the identified request groups need not have a resources[$S].
+    If this is provided, at least one of the resource providers satisfying a
+    specified request group must be an ancestor of the rest.
+    The ``same_subtree`` query parameter can be repeated and each repeat group
+    is treated independently.
+consumer_type_req:
+    type: string
+    in: query
+    required: false
+    min_version: 1.38
+    description: |
+      A string that consists of numbers, ``A-Z``, and ``_`` describing the
+      consumer type by which to filter usage results. For example, to retrieve
+      only usage information for 'INSTANCE' type consumers a parameter of
+      ``consumer_type=INSTANCE`` should be provided.
+      The ``all`` query parameter may be specified to group all results under
+      one key, ``all``. The ``unknown`` query parameter may be specified to
+      group all results under one key, ``unknown``.
+project_id: &project_id
+  type: string
+  in: query
+  required: true
+  description: >
+    The uuid of a project.
+required_traits_granular:
+  type: string
+  in: query
+  required: false
+  description: |
+    A comma-separated list of traits that a provider must have, or (if prefixed
+    with a ``!``) **not** have::
+
+        required42=HW_CPU_X86_AVX,HW_CPU_X86_SSE,!HW_CPU_X86_AVX2
+
+    The parameter key is ``requiredN``, where ``N`` represents a suffix
+    corresponding with a ``resourcesN`` parameter.
+
+    The value format is the same as for the (not granular) ``required``
+    parameter; but all of the resources and traits specified in a suffixed
+    grouping will always be satisfied by the same resource provider. Separate
+    groupings - with or without a suffix - may or may not be satisfied by the
+    same provider, depending on the value of the ``group_policy`` parameter.
+
+    **In microversions 1.25 - 1.32** the suffix is a number.
+
+    **Starting from microversion 1.33** the suffix is a string that may be 1-64
+    characters long and consist of numbers, ``a-z``, ``A-Z``, ``-``, and ``_``.
+
+    It is an error to specify a ``requiredN`` parameter without a corresponding
+    ``resourcesN`` parameter with the same suffix.
+
+    **Starting from microversion 1.39** the granular ``requiredN`` query
+    parameter gained support for the ``in:`` syntax as well as the repetition
+    of the parameter. So::
+
+      requiredN=in:T3,T4&requiredN=T1,!T2
+
+    is supported and it means T1 and not T2 and (T3 or T4).
+
+  min_version: 1.25
+required_traits_unnumbered:
+  type: string
+  in: query
+  required: false
+  min_version: 1.17
+  description: |
+    A comma-separated list of traits that a provider must have::
+
+        required=HW_CPU_X86_AVX,HW_CPU_X86_SSE
+
+    Allocation requests in the response will be for resource providers that
+    have capacity for all requested resources and the set of those resource
+    providers will *collectively* contain all of the required traits. These
+    traits may be satisfied by any provider in the same non-sharing tree or
+    associated via aggregate as far as that provider also contributes resource
+    to the request. **Starting from microversion 1.22** traits which
+    are forbidden from any resource provider contributing resources to the
+    request may be expressed by prefixing a trait with a ``!``.
+
+    **Starting from microversion 1.39** the ``required`` query parameter can be
+    repeated. The trait lists from the repeated parameters are ANDed together.
+    So::
+
+      required=T1,!T2&required=T3
+
+    means T1 and not T2 and T3.
+
+    Also **starting from microversion 1.39** the ``required`` parameter
+    supports the syntax::
+
+      required=in:T1,T2,T3
+
+    which means T1 or T2 or T3.
+
+    Mixing forbidden traits into an ``in:`` prefixed value is not supported and
+    rejected. But mixing a normal trait list and an ``in:`` prefixed trait list
+    in two query params within the same request is supported. So::
+
+      required=in:T3,T4&required=T1,!T2
+
+    is supported and it means T1 and not T2 and (T3 or T4).
+
+resource_provider_member_of:
+  type: string
+  in: query
+  required: false
+  description: >
+    A string representing an aggregate uuid; or the prefix ``in:`` followed by
+    a comma-separated list of strings representing aggregate uuids. The
+    returned resource providers must directly be associated with at least one
+    of the aggregates identified by uuid::
+
+        member_of=5e08ea53-c4c6-448e-9334-ac4953de3cfa
+        member_of=in:42896e0d-205d-4fe3-bd1e-100924931787,5e08ea53-c4c6-448e-9334-ac4953de3cfa
+
+    **Starting from microversion 1.24** specifying multiple ``member_of`` query
+    string parameters is possible. Multiple ``member_of`` parameters will
+    result in filtering providers that are associated with aggregates listed in
+    all of the ``member_of`` query string values. For example, to get the
+    providers that are associated with aggregate A as well as associated with
+    any of aggregates B or C, the user could issue the following query::
+
+        member_of=AGGA_UUID&member_of=in:AGGB_UUID,AGGC_UUID
+
+    **Starting from microversion 1.32** specifying forbidden aggregates is
+    supported in the ``member_of`` query string parameter. Forbidden aggregates
+    are prefixed with a ``!``. This negative expression can also be used in
+    multiple ``member_of`` parameters::
+
+        member_of=AGGA_UUID&member_of=!AGGB_UUID
+
+    would translate logically to "Candidate resource providers must be in AGGA
+    and *not* in AGGB."
+
+    We do NOT support ``!`` on the values within ``in:``, but we support
+    ``!in:``. Both of the following two example queries return candidate
+    resource providers that are NOT in AGGA, AGGB, or AGGC::
+
+        member_of=!in:AGGA_UUID,AGGB_UUID,AGGC_UUID
+        member_of=!AGGA_UUID&member_of=!AGGB_UUID&member_of=!AGGC_UUID
+
+    We do not check if the same aggregate uuid is in both positive and negative
+    expression to return 400 BadRequest. We still return 200 for such cases.
+    For example::
+
+        member_of=AGGA_UUID&member_of=!AGGA_UUID
+
+    would return an empty list for ``resource_providers``, while::
+
+        member_of=in:AGGA_UUID,AGGB_UUID&member_of=!AGGA_UUID
+
+    would return resource providers that are NOT in AGGA but in AGGB.
+  min_version: 1.3
+resource_provider_name_query:
+  type: string
+  in: query
+  required: false
+  description: >
+    The name of a resource provider to filter the list.
+resource_provider_required_query:
+  type: string
+  in: query
+  required: false
+  description: |
+    A comma-delimited list of string trait names. Results will be filtered to
+    include only resource providers having all the specified traits. **Starting
+    from microversion 1.22** traits which are forbidden from any resource
+    provider may be expressed by prefixing a trait with a ``!``.
+
+    **Starting from microversion 1.39** the ``required`` query parameter can be
+    repeated. The trait lists from the repeated parameters are ANDed together.
+    So::
+
+      required=T1,!T2&required=T3
+
+    means T1 and not T2 and T3.
+
+    Also **starting from microversion 1.39** the ``required`` parameter
+    supports the syntax::
+
+      required=in:T1,T2,T3
+
+    which means T1 or T2 or T3.
+
+    Mixing forbidden traits into an ``in:`` prefixed value is not supported and
+    rejected. But mixing normal trait list and ``in:`` trait list in two query
+    params within the same request is supported. So::
+
+      required=in:T3,T4&required=T1,!T2
+
+    is supported and it means T1 and not T2 and (T3 or T4).
+
+  min_version: 1.18
+resource_provider_tree_query:
+  type: string
+  in: query
+  required: false
+  description: >
+    A UUID of a resource provider. The returned resource providers will be in
+    the same "provider tree" as the specified provider.
+  min_version: 1.14
+resource_provider_uuid_query:
+  <<: *resource_provider_uuid_path
+  in: query
+  required: false
+resources_query_1_4:
+  type: string
+  in: query
+  required: false
+  description: |
+    A comma-separated list of strings indicating an amount of
+    resource of a specified class that a provider must have the
+    capacity and availability to serve::
+
+        resources=VCPU:4,DISK_GB:64,MEMORY_MB:2048
+
+    Note that the amount must be an integer greater than 0.
+  min_version: 1.4
+resources_query_ac:
+  type: string
+  in: query
+  required: false
+  description: |
+    A comma-separated list of strings indicating an amount of
+    resource of a specified class that providers in each allocation request
+    must *collectively* have the capacity and availability to serve::
+
+        resources=VCPU:4,DISK_GB:64,MEMORY_MB:2048
+
+    These resources may be satisfied by any provider in the same non-sharing
+    tree or associated via aggregate.
+resources_query_granular:
+  type: string
+  in: query
+  required: false
+  description: |
+    A comma-separated list of strings indicating an amount of
+    resource of a specified class that a provider must have the
+    capacity to serve::
+
+        resources42=VCPU:4,DISK_GB:64,MEMORY_MB:2048
+
+    The parameter key is ``resourcesN``, where ``N`` represents a unique
+    suffix. The value format is the same as for the (not granular)
+    ``resources`` parameter, but the resources specified in a ``resourcesN``
+    parameter will always be satisfied by a single provider.
+
+    **In microversions 1.25 - 1.32** the suffix is a number.
+
+    **Starting from microversion 1.33** the suffix is a string that may be 1-64
+    characters long and consist of numbers, ``a-z``, ``A-Z``, ``-``, and ``_``.
+
+    Separate groupings - with or without a suffix - may or may not be satisfied
+    by the same provider depending on the value of the ``group_policy``
+    parameter.
+  min_version: 1.25
+trait_associated:
+  type: string
+  in: query
+  required: false
+  description: >
+     If this parameter has a true value, the returned traits will be
+     those that are associated with at least one resource provider.
+     Available values for the parameter are true and false.
+trait_name_query:
+  type: string
+  in: query
+  required: false
+  description: |
+    A string to filter traits. The following options are available:
+
+    `startswith` operator filters the traits whose name begins with a
+    specific prefix, e.g. name=startswith:CUSTOM,
+
+    `in` operator filters the traits whose name is in the specified list, e.g.
+    name=in:HW_CPU_X86_AVX,HW_CPU_X86_SSE,HW_CPU_X86_INVALID_FEATURE.
+user_id: &user_id
+  type: string
+  in: query
+  required: false
+  description: >
+    The uuid of a user.
+
+# variables in body
+aggregates:
+  type: array
+  in: body
+  required: true
+  description: >
+    A list of aggregate uuids. Previously nonexistent aggregates are
+    created automatically.
+allocation_ratio: &allocation_ratio
+  type: float
+  in: body
+  required: true
+  description: |
+    It is used in determining whether consumption of the resource of
+    the provider can exceed physical constraints.
+
+    For example, for a vCPU resource with::
+
+        allocation_ratio = 16.0
+        total = 8
+
+    Overall capacity is equal to 128 vCPUs.
+allocation_ratio_opt:
+  <<: *allocation_ratio
+  required: false
+allocation_requests:
+  type: array
+  in: body
+  required: true
+  description: >
+    A list of objects that contain a
+    serialized HTTP body that a client may subsequently use in a call
+    to PUT /allocations/{consumer_uuid} to claim resources against a
+    related set of resource providers.
+allocations_array:
+  type: array
+  in: body
+  required: true
+  description: >
+    A list of dictionaries.
+allocations_by_resource_provider:
+  type: object
+  in: body
+  required: true
+  description: >
+    A dictionary of allocations keyed by resource provider uuid.
+allocations_dict: &allocations_dict
+  type: object
+  in: body
+  required: true
+  description: >
+    A dictionary of resource allocations keyed by resource provider uuid.
+allocations_dict_empty:
+  <<: *allocations_dict
+  description: >
+    A dictionary of resource allocations keyed by resource provider uuid.
+    If this is an empty object, allocations for this consumer will be
+    removed.
+  min_version: null
+capacity:
+  type: integer
+  in: body
+  required: true
+  description: >
+    The amount of the resource that the provider can accommodate.
+consumer_count:
+    type: integer
+    in: body
+    required: true
+    min_version: 1.38
+    description: >
+      The number of consumers of a particular ``consumer_type``.
+consumer_generation: &consumer_generation
+  type: integer
+  in: body
+  required: true
+  description: >
+    The generation of the consumer. Should be set to ``null`` when indicating
+    that the caller expects the consumer does not yet exist.
+consumer_generation_get:
+  <<: *consumer_generation
+  description: >
+    The generation of the consumer. Will be absent when listing allocations for
+    a consumer uuid that has no allocations.
+  min_version: 1.28
+consumer_generation_min:
+  <<: *consumer_generation
+  min_version: 1.28
+consumer_type:
+  type: string
+  in: body
+  required: true
+  min_version: 1.38
+  description: >
+    A string that consists of numbers, ``A-Z``, and ``_`` describing what kind
+    of consumer is creating, or has created, allocations using a quantity of
+    inventory. The string is determined by the client when writing allocations
+    and it is up to the client to ensure correct choices amongst collaborating
+    services.  For example, the compute service may choose to type some
+    consumers 'INSTANCE' and others 'MIGRATION'.
+consumer_uuid_body:
+  <<: *consumer_uuid
+  in: body
+inventories:
+  type: object
+  in: body
+  required: true
+  description: >
+    A dictionary of inventories keyed by resource classes.
+mappings: &mappings
+  type: object
+  in: body
+  required: true
+  description: >
+    A dictionary associating request group suffixes with a list of uuids
+    identifying the resource providers that satisfied each group. The empty
+    string and ``[a-zA-Z0-9_-]+`` are valid suffixes. This field may be sent
+    when writing allocations back to the server but will be ignored; this
+    preserves symmetry between read and write representations.
+  min_version: 1.34
+mappings_in_allocations:
+  <<: *mappings
+  required: false
+max_unit: &max_unit
+  type: integer
+  in: body
+  required: true
+  description: >
+    A maximum amount any single allocation against an inventory can have.
+max_unit_opt:
+  <<: *max_unit
+  required: false
+min_unit: &min_unit
+  type: integer
+  in: body
+  required: true
+  description: >
+    A minimum amount any single allocation against an inventory can have.
+min_unit_opt:
+  <<: *min_unit
+  required: false
+project_id_body: &project_id_body
+  <<: *project_id
+  in: body
+project_id_body_1_12:
+  <<: *project_id_body
+  description: >
+    The uuid of a project. Will be absent when listing allocations for
+    a consumer uuid that has no allocations.
+  min_version: 1.12
+project_id_body_1_8:
+  <<: *project_id_body
+  min_version: 1.8
+provider_summaries:
+  type: object
+  in: body
+  required: true
+  description: >
+    A dictionary keyed by resource provider UUID included in the
+    ``allocation_requests``, of dictionaries of inventory/capacity information.
+provider_summaries_1_12:
+  type: object
+  in: body
+  required: true
+  description: >
+    A dictionary keyed by resource provider UUID included in the
+    ``allocation_requests``, of dictionaries of inventory/capacity information.
+    The list of traits the resource provider has associated with it is included
+    in version 1.17 and above.
+    Starting from microversion 1.29, the provider summaries include
+    all resource providers in the same resource provider tree that has one
+    or more resource providers included in the ``allocation_requests``.
+reserved: &reserved
+  type: integer
+  in: body
+  required: true
+  description: >
+    The amount of the resource a provider has reserved for its own use.
+reserved_opt:
+  <<: *reserved
+  required: false
+  description: >
+    The amount of the resource a provider has reserved for its own use.
+    Up to microversion 1.25, this value has to be less than the value of
+    ``total``. Starting from microversion 1.26, this value has to be less
+    than or equal to the value of ``total``.
+reshaper_allocations:
+  type: object
+  in: body
+  required: true
+  description: >
+    A dictionary of multiple allocations, keyed by consumer uuid. Each
+    collection of allocations describes the full set of allocations for
+    each consumer. Each consumer allocations dict is itself a dictionary
+    of resource allocations keyed by resource provider uuid. An empty
+    dictionary indicates no change in existing allocations, whereas an empty
+    ``allocations`` dictionary **within** a consumer dictionary indicates that
+    all allocations for that consumer should be deleted.
+reshaper_inventories:
+  type: object
+  in: body
+  required: true
+  description: >
+    A dictionary of multiple inventories, keyed by resource provider uuid. Each
+    inventory describes the desired full inventory for each resource provider.
+    An empty dictionary causes the inventory for that provider to be deleted.
+resource_class:
+  <<: *resource_class_path
+  in: body
+resource_class_custom:
+  <<: *resource_class_path_custom
+  in: body
+resource_class_links:
+  type: array
+  in: body
+  required: true
+  description: >
+    A list of links associated with one resource class.
+resource_classes:
+  type: array
+  in: body
+  required: true
+  description: >
+    A list of ``resource_class`` objects.
+resource_provider_allocations:
+  type: object
+  in: body
+  required: true
+  description: >
+    A dictionary of allocation records keyed by consumer uuid.
+resource_provider_generation: &resource_provider_generation
+  type: integer
+  in: body
+  required: true
+  description: >
+    A consistent view marker that assists with the management of
+    concurrent resource provider updates.
+resource_provider_generation_optional:
+  <<: *resource_provider_generation
+  required: false
+  description: >
+    A consistent view marker that assists with the management of
+    concurrent resource provider updates. The value is ignored;
+    it is present to preserve symmetry between read and
+    write representations.
+resource_provider_generation_v1_19:
+  <<: *resource_provider_generation
+  min_version: 1.19
+resource_provider_links: &resource_provider_links
+  type: array
+  in: body
+  required: true
+  description: |
+    A list of links associated with one resource provider.
+
+    .. note::
+
+      Aggregates relationship link is available starting from version 1.1.
+      Traits relationship link is available starting from version 1.6.
+      Allocations relationship link is available starting from version 1.11.
+
+resource_provider_links_v1_20:
+  <<: *resource_provider_links
+  description: |
+    A list of links associated with the resource provider.
+
+resource_provider_name:
+  type: string
+  in: body
+  required: true
+  description: >
+    The name of one resource provider.
+resource_provider_object:
+  type: object
+  in: body
+  required: true
+  description: >
+    A dictionary which contains the UUID of the resource provider.
+resource_provider_parent_provider_uuid_request:
+  type: string
+  in: body
+  required: false
+  description: |
+    The UUID of the immediate parent of the resource provider.
+
+    * Before version ``1.37``, once set, the parent of a resource provider
+      cannot be changed.
+
+    * Since version ``1.37``, it can be set to any existing provider UUID
+      excepts to providers that would cause a loop. Also it can be set to null
+      to transform the provider to a new root provider. This operation needs
+      to be used carefully. Moving providers can mean that the original rules
+      used to create the existing resource allocations may be invalidated
+      by that move.
+  min_version: 1.14
+resource_provider_parent_provider_uuid_required_no_min:
+  type: string
+  in: body
+  required: true
+  description: >
+    The UUID of the immediate parent of the resource provider.
+resource_provider_parent_provider_uuid_response_1_14:
+  type: string
+  in: body
+  required: true
+  description: >
+    The UUID of the immediate parent of the resource provider.
+  min_version: 1.14
+resource_provider_parent_provider_uuid_response_1_29:
+  type: string
+  in: body
+  required: true
+  description: >
+    The UUID of the immediate parent of the resource provider.
+  min_version: 1.29
+resource_provider_root_provider_uuid_1_29:
+  type: string
+  in: body
+  required: true
+  description: >
+    UUID of the top-most provider in this provider tree.
+  min_version: 1.29
+resource_provider_root_provider_uuid_no_min: &resource_provider_root_provider_uuid_no_min
+  type: string
+  in: body
+  required: true
+  description: >
+    UUID of the top-most provider in this provider tree.
+resource_provider_root_provider_uuid_required:
+  <<: *resource_provider_root_provider_uuid_no_min
+  description: >
+    Read-only UUID of the top-most provider in this provider tree.
+  min_version: 1.14
+resource_provider_usages:
+  type: object
+  in: body
+  required: true
+  description: >
+    The usage summary of the resource provider. This is a dictionary that
+    describes how much each class of resource is being consumed on this
+    resource provider. For example, ``"VCPU": 1`` means 1 VCPU is used.
+resource_provider_uuid:
+  <<: *resource_provider_uuid_path
+  in: body
+resource_provider_uuid_opt:
+  <<: *resource_provider_uuid_path
+  in: body
+  required: false
+resource_providers:
+  type: array
+  in: body
+  required: true
+  description: >
+    A list of ``resource_provider`` objects.
+resources:
+  type: object
+  in: body
+  required: true
+  description: >
+    A dictionary of resource records keyed by resource class name.
+resources_single:
+  type: integer
+  in: body
+  required: true
+  description: >
+    An amount of resource class consumed in a usage report.
+step_size: &step_size
+  type: integer
+  in: body
+  required: true
+  description: >
+    A representation of the divisible amount of the resource
+    that may be requested. For example, step_size = 5 means
+    that only values divisible by 5 (5, 10, 15, etc.) can be requested.
+step_size_opt:
+  <<: *step_size
+  required: false
+total:
+  type: integer
+  in: body
+  required: true
+  description: >
+    The actual amount of the resource that the provider can accommodate.
+traits: &traits
+  type: array
+  in: body
+  required: true
+  description: >
+    A list of traits.
+traits_1_17:
+  <<: *traits
+  min_version: 1.17
+used:
+  type: integer
+  in: body
+  required: true
+  description: >
+    The amount of the resource that has been already allocated.
+user_id_body: &user_id_body
+  <<: *user_id
+  in: body
+  required: true
+user_id_body_1_12:
+  <<: *user_id_body
+  description: >
+    The uuid of a user. Will be absent when listing allocations for
+    a consumer uuid that has no allocations.
+  min_version: 1.12
+user_id_body_1_8:
+  <<: *user_id_body
+  min_version: 1.8
+version_id:
+  type: string
+  in: body
+  required: true
+  description: >
+    A common name for the version being described. Informative only.
+version_links:
+  type: array
+  in: body
+  required: true
+  description: >
+    A list of links related to and describing this version.
+version_max:
+  type: string
+  in: body
+  required: true
+  description: >
+    The maximum microversion that is supported.
+version_min:
+  type: string
+  in: body
+  required: true
+  description: >
+    The minimum microversion that is supported.
+version_status:
+  type: string
+  in: body
+  required: true
+  description: >
+    The status of the version being described. With placement this is
+    "CURRENT".
+versions:
+  type: array
+  in: body
+  required: true
+  description: >
+    A list of version objects that describe the API versions available.

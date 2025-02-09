@@ -1,0 +1,72 @@
+*.py[cod]
+
+# C extensions
+*.so
+
+# Packages
+*.egg*
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+!.coveragerc
+.coverage*
+cover
+cover-master
+.tox
+.stestr/
+.venv
+
+# Functional test
+functional-tests.log
+functional_creds.conf
+
+# Translations
+*.mo
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+.idea
+
+# Complexity
+output/*.html
+output/*/index.html
+
+# Sphinx
+doc/build
+
+# pbr generates these
+AUTHORS
+ChangeLog
+
+# Editors
+*~
+.*.swp
+.*sw?
+*.DS_Store
+
+# generated config file
+etc/magnum/magnum.conf.sample
+
+# generated policy file
+etc/magnum/policy.yaml.sample
+
+# generated files from doc build
+doc/source/_static/
+
+# Files created by releasenotes build
+releasenotes/build

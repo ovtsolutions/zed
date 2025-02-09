@@ -1,0 +1,36 @@
+Metadata-Version: 2.1
+Name: python-designateclient
+Version: 5.2.0
+Summary: OpenStack DNS-as-a-Service - Client
+Home-page: https://docs.openstack.org/python-designateclient/latest
+Author: OpenStack
+Author-email: openstack-discuss@lists.openstack.org
+License: Apache License, Version 2.0
+Platform: UNKNOWN
+Classifier: Environment :: OpenStack
+Classifier: Intended Audience :: Information Technology
+Classifier: Intended Audience :: System Administrators
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Topic :: Internet :: Name Service (DNS)
+Requires-Python: >=3.8
+Requires-Dist: cliff (!=2.9.0,>=2.8.0)
+Requires-Dist: debtcollector (>=1.2.0)
+Requires-Dist: jsonschema (>=3.2.0)
+Requires-Dist: keystoneauth1 (>=3.4.0)
+Requires-Dist: osc-lib (>=1.8.0)
+Requires-Dist: oslo.serialization (!=2.19.1,>=2.18.0)
+Requires-Dist: oslo.utils (>=3.33.0)
+Requires-Dist: pbr (!=2.1.0,>=2.0.0)
+Requires-Dist: requests (>=2.14.2)
+Requires-Dist: stevedore (>=1.20.0)
+
+OpenStack DNS-as-a-Service - Client
+
+

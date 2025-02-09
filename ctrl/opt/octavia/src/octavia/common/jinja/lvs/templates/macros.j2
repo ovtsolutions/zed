@@ -1,0 +1,163 @@
+{#   Copyright (c) 2018 OpenStack Foundation
+#
+#    Licensed under the Apache License, Version 2.0 (the "License"); you may
+#    not use this file except in compliance with the License. You may obtain
+#    a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#    License for the specific language governing permissions and limitations
+#    under the License.
+#
+#}
+
+{%- macro lb_algo_macro(pool) -%}
+lb_algo {{ pool.lb_algorithm }}
+{%- endmacro -%}
+
+{% macro misc_path_macro(member, health_monitor) -%}
+misc_path "{{ health_monitor.check_script_path }} {{ member.monitor_address|default(member.address, true) }} {{ member.monitor_port|default(member.protocol_port, true) }}"
+{%- endmacro %}
+
+{%- macro misc_check_macro(pool, member, health_monitor) -%}
+MISC_CHECK {
+            {{ misc_path_macro(member, health_monitor) }}
+            misc_timeout {{ pool.health_monitor.timeout }}
+        }
+{%- endmacro -%}
+
+{%- macro sctp_check_macro(pool, member, health_monitor) -%}
+MISC_CHECK {
+            misc_path "amphora-health-checker sctp -t {{ pool.health_monitor.timeout }} {{ member.monitor_address|default(member.address, true) }} {{ member.monitor_port|default(member.protocol_port, true) }}"
+            misc_timeout {{ (pool.health_monitor.timeout + 1) }}
+        }
+{%- endmacro -%}
+
+{%- macro http_url_macro(health_monitor, health_monitor_status_code) %}
+url {
+              path {{ health_monitor.url_path }}
+              status_code {{ health_monitor_status_code }}
+            }
+{% endmacro -%}
+
+{%- macro http_get_macro(pool, member, health_monitor) -%}
+HTTP_GET {
+            {% for status_code in health_monitor.expected_codes %}
+            {{ http_url_macro(health_monitor, status_code) -}}
+            {% endfor %}
+            connect_ip {{ member.monitor_address|default(member.address, true) }}
+            connect_port {{ member.monitor_port|default(member.protocol_port, true) }}
+            connect_timeout {{ health_monitor.timeout }}
+        }
+{%- endmacro -%}
+
+{%- macro tcp_check_macro(pool, member, health_monitor) -%}
+TCP_CHECK {
+            connect_ip {{ member.monitor_address|default(member.address, true) }}
+            connect_port {{ member.monitor_port|default(member.protocol_port, true) }}
+            connect_timeout {{ health_monitor.timeout }}
+        }
+{%- endmacro -%}
+
+{% macro health_monitor_rs_macro(constants, lib_consts, pool, member) %}
+        {% if pool.health_monitor and pool.health_monitor.enabled %}
+            {% if pool.health_monitor.type == constants.HEALTH_MONITOR_UDP_CONNECT %}
+        {{ misc_check_macro(pool, member, pool.health_monitor) -}}
+            {% elif pool.health_monitor.type == lib_consts.HEALTH_MONITOR_SCTP %}
+        {{ sctp_check_macro(pool, member, pool.health_monitor) -}}
+            {% elif pool.health_monitor.type == constants.HEALTH_MONITOR_HTTP and pool.health_monitor.http_method == constants.HEALTH_MONITOR_HTTP_METHOD_GET %}
+        {{ http_get_macro(pool, member, pool.health_monitor) -}}
+            {% elif pool.health_monitor.type == constants.HEALTH_MONITOR_TCP %}
+        {{ tcp_check_macro(pool, member, pool.health_monitor) -}}
+            {% endif %}
+        {% endif %}
+{% endmacro %}
+
+{% macro realserver_macro(constants, lib_consts, pool, member, listener) %}
+    {% if member.enabled %}
+    # Configuration for Member {{ member.id }}
+    real_server {{ member.address }} {{ member.protocol_port }} {
+        weight {{ member.weight }}
+        {% if listener.connection_limit %}
+        uthreshold {{ listener.connection_limit }}
+        {% endif %}
+{{- health_monitor_rs_macro(constants, lib_consts, pool, member) }}
+    }
+    {% else %}
+    # Member {{ member.id }} is disabled
+    {% endif %}
+{% endmacro %}
+
+{% macro health_monitor_vs_macro(default_pool) %}
+{% if default_pool and default_pool.health_monitor and default_pool.health_monitor.enabled %}
+    delay_loop {{ default_pool.health_monitor.delay }}
+    delay_before_retry {{ default_pool.health_monitor.delay }}
+    {% if default_pool.health_monitor.fall_threshold %}
+    retry {{ default_pool.health_monitor.fall_threshold }}
+    {% endif %}
+{% endif %}
+{% endmacro %}
+
+{% macro virtualserver_macro(constants, lib_consts, listener, vips, default_pool) %}
+{% if default_pool %}
+{% for ip_version in (4, 6) %}
+{%- set has_vip = namespace(found=False) %}
+{%- for vip in vips %}
+    {%- if vip.ip_version == ip_version %}
+        {%- set has_vip.found = True %}
+    {%- endif %}
+{%- endfor %}
+{% if has_vip.found %}
+virtual_server_group ipv{{ ip_version }}-group {
+    {% for vip in vips %}
+    {% if vip.ip_version == ip_version %}
+    {{ vip.ip_address }} {{ listener.protocol_port }}
+    {% endif %}
+    {% endfor %}
+}
+
+virtual_server group ipv{{ ip_version }}-group {
+    {{ lb_algo_macro(default_pool) }}
+    lb_kind NAT
+    protocol {{ listener.protocol_mode.upper() }}
+    {% if default_pool.session_persistence and default_pool.session_persistence.type == constants.SESSION_PERSISTENCE_SOURCE_IP %}
+      {# set our defined defaults as I saw this not be consistent #}
+      {# in testing #}
+      {% if default_pool.session_persistence.persistence_timeout %}
+    persistence_timeout {{ default_pool.session_persistence.persistence_timeout }}
+      {% else %}
+    persistence_timeout 360
+      {% endif %}
+      {% if default_pool.session_persistence.persistence_granularity %}
+    persistence_granularity {{ default_pool.session_persistence.persistence_granularity }}
+      {% else %}
+    persistence_granularity 255.255.255.255
+      {% endif %}
+   {% endif %}
+{{ health_monitor_vs_macro(default_pool) }}
+
+{% if default_pool.protocol.upper() in constants.LVS_PROTOCOLS %}
+    {% if default_pool.enabled %}
+    # Configuration for Pool {{ default_pool.id }}
+    {% else %}
+    # Pool {{ default_pool.id }} is disabled
+    {% endif %}
+    {% if default_pool.health_monitor and default_pool.health_monitor.enabled %}
+    # Configuration for HealthMonitor {{ default_pool.health_monitor.id }}
+    {% endif %}
+    {% if default_pool.enabled %}
+      {% for member in default_pool.members %}
+        {% if member.ip_version == ip_version %}
+          {{- realserver_macro(constants, lib_consts, default_pool, member, listener) }}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+{% endif %}
+}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endmacro %}

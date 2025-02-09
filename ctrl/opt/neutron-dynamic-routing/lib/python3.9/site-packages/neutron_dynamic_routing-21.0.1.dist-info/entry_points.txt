@@ -1,0 +1,17 @@
+[console_scripts]
+neutron-bgp-dragent = neutron_dynamic_routing.cmd.eventlet.agents.bgp_dragent:main
+
+[neutron.db.alembic_migrations]
+neutron-dynamic-routing = neutron_dynamic_routing.db.migration:alembic_migrations
+
+[neutron.policies]
+neutron-dynamic-routing = neutron_dynamic_routing.policies:list_rules
+
+[neutron.service_plugins]
+bgp = neutron_dynamic_routing.services.bgp.bgp_plugin:BgpPlugin
+
+[oslo.config.opts]
+bgp.agent = neutron_dynamic_routing.services.bgp.common.opts:list_bgp_agent_opts
+
+[oslo.policy.policies]
+neutron-dynamic-routing = neutron_dynamic_routing.policies:list_rules

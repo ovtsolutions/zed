@@ -1,0 +1,10 @@
+#!/opt/glance/bin/python3
+# PBR Generated from 'console_scripts'
+
+import sys
+
+from glance.cmd.scrubber import main
+
+
+if __name__ == "__main__":
+    sys.exit(main())

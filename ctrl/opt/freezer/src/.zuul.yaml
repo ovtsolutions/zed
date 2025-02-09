@@ -1,0 +1,17 @@
+- project:
+    templates:
+      - check-requirements
+      - openstack-python3-zed-jobs
+      - openstack-python3-zed-jobs-arm64
+      - publish-openstack-docs-pti
+      - release-notes-jobs-python3
+    check:
+      jobs:
+        - openstack-tox-pylint
+        - freezer-tempest-basic
+        - freezer-tempest-basic-sql
+    gate:
+      jobs:
+        - openstack-tox-pylint
+        - freezer-tempest-basic
+        - freezer-tempest-basic-sql

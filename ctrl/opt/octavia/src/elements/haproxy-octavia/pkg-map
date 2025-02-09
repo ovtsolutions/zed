@@ -1,0 +1,18 @@
+{
+    "distro": {
+        "ubuntu": {
+            "haproxy": "haproxy"
+        }
+    },
+    "family": {
+        "debian": {
+            "haproxy": "haproxy"
+        },
+        "redhat": {
+            "iputils-ping": "iputils"
+        }
+    },
+    "default": {
+        "haproxy": "haproxy"
+    }
+}

@@ -1,0 +1,4 @@
+---
+fixes:
+  - Prevented the resource leak for objects created during deployment
+    with ``new()`` function call.

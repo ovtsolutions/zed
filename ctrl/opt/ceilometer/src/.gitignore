@@ -1,0 +1,31 @@
+*.egg*
+*.mo
+*.pyc
+.coverage
+.stestr
+.tox
+AUTHORS
+build/*
+ChangeLog
+cover/*
+dist/*
+doc/build
+doc/source/_static/
+doc/source/api
+etc/ceilometer/ceilometer.conf
+subunit.log
+
+# Files created by releasenotes build
+releasenotes/build
+
+#swap file
+*.swp
+
+#IntelJ Idea
+.idea/
+
+#venv
+venv/
+
+#Pyenv files
+.python-version

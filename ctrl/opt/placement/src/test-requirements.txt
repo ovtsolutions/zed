@@ -1,0 +1,26 @@
+# The order of packages is significant, because pip processes them in the order
+# of appearance. Changing the order has an impact on the overall integration
+# process, which may cause wedges in the gate later.
+
+hacking>=4.0.0,<4.1.0 # Apache-2.0
+
+coverage!=4.4,>=4.0 # Apache-2.0
+fixtures>=3.0.0 # Apache-2.0/BSD
+# NOTE(tetsuro): Local testing on osx may have problems to install packages,
+# psycopg2 and PYMySQL. You can workaround them using sys_platform qualifier.
+# See the https://review.opendev.org/#/c/671249/ for details. However, we
+# don't use it here to keep the consistency with global requirements.
+psycopg2>=2.8 # LGPL/ZPL
+PyMySQL>=0.8.0 # MIT License
+oslotest>=3.5.0 # Apache-2.0
+stestr>=1.0.0 # Apache-2.0
+testtools>=2.2.0 # MIT
+bandit>=1.1.0 # Apache-2.0
+gabbi>=1.35.0 # Apache-2.0
+
+# placement functional tests
+cryptography>=2.7
+wsgi-intercept>=1.7.0 # MIT License
+
+# needed to generate osprofiler config options
+osprofiler>=1.4.0 # Apache-2.0

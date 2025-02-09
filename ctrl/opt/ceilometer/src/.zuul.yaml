@@ -1,0 +1,75 @@
+- job:
+    name: grenade-ceilometer
+    parent: grenade
+    voting: false
+    required-projects:
+      - opendev.org/openstack/grenade
+      - opendev.org/openstack/ceilometer
+      - gnocchixyz/gnocchi
+    vars:
+      configure_swap_size: 8192
+      grenade_devstack_localrc:
+        shared:
+          CEILOMETER_BACKEND: gnocchi
+      devstack_plugins:
+        ceilometer: https://opendev.org/openstack/ceilometer
+      devstack_services:
+        ceilometer-acompute: true
+        ceilometer-acentral: true
+        ceilometer-aipmi: true
+        ceilometer-anotification: true
+    irrelevant-files: &ceilometer-irrelevant-files
+      - ^(test-|)requirements.txt$
+      - ^setup.cfg$
+      - ^doc/.*$
+      - ^.*\.rst$
+      - ^releasenotes/.*$
+      - ^ceilometer/tests/.*$
+
+- project:
+    queue: telemetry
+    templates:
+      - openstack-cover-jobs
+      - openstack-python3-jobs
+      - publish-openstack-docs-pti
+      - periodic-stable-jobs
+      - release-notes-jobs-python3
+      - check-requirements
+    check:
+      jobs:
+        - grenade-ceilometer
+        - telemetry-dsvm-integration-centos-9s:
+            irrelevant-files: *ceilometer-irrelevant-files
+            voting: false
+        - telemetry-dsvm-integration-centos-9s-fips:
+            irrelevant-files: *ceilometer-irrelevant-files
+            voting: false
+        - telemetry-dsvm-integration:
+            irrelevant-files: *ceilometer-irrelevant-files
+            vars:
+              devstack_localrc:
+                GLOBAL_VENV: False
+        - telemetry-dsvm-integration-ipv6-only:
+            irrelevant-files: *ceilometer-irrelevant-files
+            vars:
+              devstack_localrc:
+                GLOBAL_VENV: False
+    gate:
+      jobs:
+        - grenade-ceilometer
+        - telemetry-dsvm-integration-centos-9s:
+            irrelevant-files: *ceilometer-irrelevant-files
+            voting: false
+        - telemetry-dsvm-integration-centos-9s-fips:
+            irrelevant-files: *ceilometer-irrelevant-files
+            voting: false
+        - telemetry-dsvm-integration:
+            irrelevant-files: *ceilometer-irrelevant-files
+            vars:
+              devstack_localrc:
+                GLOBAL_VENV: False
+        - telemetry-dsvm-integration-ipv6-only:
+            irrelevant-files: *ceilometer-irrelevant-files
+            vars:
+              devstack_localrc:
+                GLOBAL_VENV: False

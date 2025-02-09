@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    A new optional header ``X-Openstack-Append`` has been added to append the
+    new metadef tags to the existing tags. If the header is present it will
+    append the new tags to the existing one, if not then it will default to the
+    old behaviour i.e. overwriting the existing tags with the new one.
+

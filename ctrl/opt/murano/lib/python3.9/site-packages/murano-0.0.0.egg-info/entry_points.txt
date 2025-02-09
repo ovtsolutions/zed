@@ -1,0 +1,32 @@
+[console_scripts]
+murano-api = murano.cmd.api:main
+murano-cfapi = murano.cmd.cfapi:main
+murano-cfapi-db-manage = murano.cmd.cfapi_db_manage:main
+murano-db-manage = murano.cmd.db_manage:main
+murano-engine = murano.cmd.engine:main
+murano-manage = murano.cmd.manage:main
+murano-status = murano.cmd.status:main
+murano-test-runner = murano.cmd.test_runner:main
+
+[murano_policy_modify_actions]
+add-object = murano.policy.modify.actions.default_actions:AddObjectAction
+add-relation = murano.policy.modify.actions.default_actions:AddRelationAction
+remove-object = murano.policy.modify.actions.default_actions:RemoveObjectAction
+remove-relation = murano.policy.modify.actions.default_actions:RemoveRelationAction
+set-property = murano.policy.modify.actions.default_actions:SetPropertyAction
+
+[oslo.config.opts]
+castellan.config = castellan.options:list_opts
+keystone_authtoken = keystonemiddleware.opts:list_auth_token_opts
+murano = murano.opts:list_opts
+murano.cfapi = murano.opts:list_cfapi_opts
+
+[oslo.config.opts.defaults]
+murano = murano.common.config:set_lib_defaults
+
+[oslo.policy.policies]
+murano = murano.common.policies:list_rules
+
+[wsgi_scripts]
+murano-wsgi-api = murano.httpd.murano_api:init_application
+

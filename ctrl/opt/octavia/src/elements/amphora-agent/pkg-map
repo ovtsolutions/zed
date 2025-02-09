@@ -1,0 +1,73 @@
+{
+  "release": {
+    "rhel": {
+      "8": {
+        "isc-dhcp-client": "dhcp-client",
+        "python3-dev": "platform-python-devel",
+        "python3-venv": "python3-virtualenv",
+        "python3": "python36",
+        "vlan": "",
+        "screen": "",
+        "dkms": ""
+      },
+      "9": {
+        "isc-dhcp-client": "dhcp-client",
+        "python3-dev": "platform-python-devel",
+        "python3-venv": "",
+        "python3": "python39",
+        "vlan": "",
+        "screen": "",
+        "dkms": "",
+        "network-scripts": ""
+      }
+    },
+    "centos": {
+      "8": {
+        "isc-dhcp-client": "dhcp-client",
+        "python3-dev": "platform-python-devel",
+        "python3-venv": "python3-virtualenv",
+        "python3": "python36",
+        "vlan": "",
+        "screen": "",
+        "dkms": ""
+      },
+      "9-stream": {
+        "isc-dhcp-client": "dhcp-client",
+        "python3-dev": "platform-python-devel",
+        "python3-venv": "",
+        "python3": "python39",
+        "vlan": "",
+        "screen": "",
+        "dkms": "",
+        "network-scripts": ""
+      }
+    }
+  },
+  "family": {
+    "redhat": {
+      "amphora-agent": "openstack-octavia-amphora-agent",
+      "acpid-ppc64le": "",
+      "netcat-openbsd": "nmap-ncat",
+      "netbase": "",
+      "cron": "cronie",
+      "ifenslave": "",
+      "iputils-tracepath": "",
+      "cloud-guest-utils": "cloud-utils-growpart",
+      "apparmor": "",
+      "dmeventd": "",
+      "isc-dhcp-client": "dhclient",
+      "uuid-runtime": "",
+      "ubuntu-cloudimage-keyring": "",
+      "vim-tiny": "vim-minimal",
+      "apt-transport-https": "",
+      "pollinate": "",
+      "ifupdown": "",
+      "network-scripts": "network-scripts"
+    }
+  },
+  "default": {
+    "amphora-agent": "amphora-agent",
+    "acpid-ppc64le": "acpid",
+    "network-scripts": ""
+  }
+}

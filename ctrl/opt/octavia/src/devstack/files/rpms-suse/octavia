@@ -1,0 +1,4 @@
+debootstrap
+dpkg
+go
+rsyslog

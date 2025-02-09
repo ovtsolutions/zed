@@ -1,0 +1,230 @@
+- job:
+    name: publish-openstack-octavia-amphora-image
+    parent: publish-openstack-artifacts
+    run: playbooks/image-build/run.yaml
+    post-run: playbooks/image-build/post.yaml
+    required-projects:
+        - openstack/diskimage-builder
+        - openstack/octavia
+        - openstack/octavia-lib
+
+- job:
+    name: publish-openstack-octavia-amphora-image-focal
+    parent: publish-openstack-octavia-amphora-image
+    nodeset: ubuntu-focal
+    description: |
+      Publish Ubuntu Focal (20.04) based amphora image to tarballs.o.o.
+    vars:
+        amphora_os: ubuntu
+        amphora_os_release: focal
+
+- job:
+    name: publish-openstack-octavia-amphora-image-centos-9-stream
+    nodeset: centos-9-stream
+    parent: publish-openstack-octavia-amphora-image
+    description: |
+      Publish CentOS 9 Stream based amphora image to tarballs.o.o.
+    vars:
+        amphora_os: centos
+        amphora_os_release: 9-stream
+
+- job:
+    name: octavia-grenade
+    parent: grenade
+    nodeset: octavia-single-node-ubuntu-focal
+    required-projects:
+      - opendev.org/openstack/grenade
+      - opendev.org/openstack/octavia
+      - opendev.org/openstack/octavia-lib
+      - opendev.org/openstack/octavia-tempest-plugin
+      - opendev.org/openstack/python-octaviaclient
+    vars:
+      grenade_devstack_localrc:
+        shared:
+          DIB_LOCAL_ELEMENTS: openstack-ci-mirrors
+          LIBVIRT_TYPE: kvm
+          LIBVIRT_CPU_MODE: host-passthrough
+      devstack_local_conf:
+        test-config:
+          "$TEMPEST_CONFIG":
+            load_balancer:
+              check_interval: 1
+              check_timeout: 180
+      devstack_plugins:
+        neutron: https://opendev.org/openstack/neutron.git
+        octavia: https://opendev.org/openstack/octavia.git
+        octavia-tempest-plugin: https://opendev.org/openstack/octavia-tempest-plugin.git
+      devstack_services:
+        s-account: false
+        s-container: false
+        s-object: false
+        s-proxy: false
+        c-api: false
+        c-bak: false
+        c-vol: false
+        cinder: false
+        octavia: true
+        o-api: true
+        o-cw: true
+        o-hm: true
+        o-hk: true
+      tempest_plugins:
+        - octavia-tempest-plugin
+      tempest_test_regex: ^octavia_tempest_plugin.*\[.*\bsmoke\b.*\]
+      tox_envlist: all
+      zuul_copy_output:
+        '/var/log/dib-build/': 'logs'
+        '/var/log/octavia-tenant-traffic.log': 'logs'
+        '/var/log/octavia-amphora.log': 'logs'
+
+- job:
+    name: octavia-grenade-ffu
+    parent: octavia-grenade
+    vars:
+      grenade_from_branch: stable/stein
+
+- job:
+    name: octavia-v2-dsvm-scenario-amphora-v2
+    parent: octavia-v2-dsvm-scenario
+    vars:
+      devstack_localrc:
+        OCTAVIA_ENABLE_AMPHORAV2_JOBBOARD: True
+      devstack_local_conf:
+        post-config:
+          $OCTAVIA_CONF:
+            api_settings:
+              default_provider_driver: amphorav2
+              enabled_provider_drivers: amphorav2:The v2 amphora driver.
+            task_flow:
+              jobboard_expiration_time: 100
+        test-config:
+          "$TEMPEST_CONFIG":
+            load_balancer:
+              enabled_provider_drivers: amphorav2:The v2 amphora driver.
+              provider: amphorav2
+
+- job:
+    name: octavia-v2-dsvm-scenario-amphora-v2-no-jobboard
+    parent: octavia-v2-dsvm-scenario-amphora-v2
+    vars:
+      devstack_localrc:
+        OCTAVIA_ENABLE_AMPHORAV2_JOBBOARD: False
+
+- project-template:
+    name: octavia-tox-tips
+    check:
+      jobs:
+        - octavia-tox-py39-tips
+        - octavia-tox-functional-py39-tips
+
+- job:
+    name: octavia-tox-py39-tips
+    parent: openstack-tox-py39
+    description: |
+      Run tox python 3.9 unit tests against master of related libraries.
+    vars:
+      tox_install_siblings: true
+      zuul_work_dir: src/opendev.org/openstack/octavia
+    required-projects:
+      - openstack/octavia-lib
+      - openstack/octavia
+
+- job:
+    name: octavia-tox-functional-py39-tips
+    parent: openstack-tox-functional-py39
+    description: |
+      Run tox python 3.9 functional against master of related libraries.
+    vars:
+      tox_install_siblings: true
+      zuul_work_dir: src/opendev.org/openstack/octavia
+    required-projects:
+      - openstack/octavia-lib
+      - openstack/octavia
+
+- job:
+    name: octavia-amphora-image-build
+    parent: base
+    description: |
+      Builds the amphora image using the released diskimage-builder version,
+      not Git master. This job does not publish the image.
+    run: playbooks/image-build/run.yaml
+    required-projects:
+        - openstack/octavia
+        - openstack/octavia-lib
+    vars:
+        amphora_os: ubuntu
+        amphora_os_release: focal
+
+- job:
+    name: octavia-amphora-image-build-live-focal
+    parent: octavia-amphora-image-build
+    description: |
+      Builds an Ubuntu Focal amphora image using diskimage-builder from Git
+      master. This job does not publish the image.
+    required-projects:
+        - openstack/diskimage-builder
+
+- job:
+    name: octavia-amphora-image-build-live-centos-9-stream
+    parent: octavia-amphora-image-build
+    nodeset: centos-9-stream
+    description: |
+      Builds a CentOS 9 Stream amphora image using diskimage-builder from Git
+      master. This job does not publish the image.
+    required-projects:
+        - openstack/diskimage-builder
+    vars:
+        amphora_os: centos
+        amphora_os_release: 9-stream
+
+- job:
+    name: octavia-v2-dsvm-scenario-nftables
+    parent: octavia-v2-dsvm-scenario
+    vars:
+      devstack_localrc:
+        OCTAVIA_AMP_USE_NFTABLES: True
+
+- job:
+    name: openstack-tox-pip-check-reqs
+    parent: openstack-tox
+    description: |
+      Run pip-missing-reqs and pip-extra-reqs tests to check for missing or
+      extra requirements.txt entries.
+
+      Uses tox with the ``pip-missing-reqs``  and ``pip-extra-reqs``
+      environments.
+    required-projects:
+        - openstack/octavia
+    vars:
+      tox_envlist: pip-missing-reqs,pip-extra-reqs
+
+- job:
+    name: octavia-v2-dsvm-scenario-fips
+    parent: octavia-v2-dsvm-scenario
+    nodeset: octavia-single-node-centos-9-stream
+    description: |
+      Functional testing for a FIPS enabled Centos 9 system.
+    pre-run: playbooks/enable-fips.yaml
+    timeout: 10800
+    vars:
+      nslookup_target: 'opendev.org'
+      devstack_localrc:
+        OCTAVIA_AMP_BASE_OS: centos
+        OCTAVIA_AMP_DISTRIBUTION_RELEASE_ID: 9-stream
+        OCTAVIA_AMP_IMAGE_SIZE: 3
+        OCTAVIA_AMP_ENABLE_FIPS: True
+
+- job:
+    name: octavia-v2-dsvm-tls-barbican-fips
+    parent: octavia-v2-dsvm-tls-barbican
+    nodeset: octavia-single-node-centos-9-stream
+    description: |
+      Functional testing for a FIPS enabled Centos 9 system
+    pre-run: playbooks/enable-fips.yaml
+    vars:
+      nslookup_target: 'opendev.org'
+      devstack_localrc:
+        OCTAVIA_AMP_BASE_OS: centos
+        OCTAVIA_AMP_DISTRIBUTION_RELEASE_ID: 9-stream
+        OCTAVIA_AMP_IMAGE_SIZE: 3
+        OCTAVIA_AMP_ENABLE_FIPS: True

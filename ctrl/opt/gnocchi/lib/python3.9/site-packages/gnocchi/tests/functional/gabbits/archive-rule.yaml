@@ -1,0 +1,268 @@
+#
+## Test the Archive Policy API to achieve coverage of just the
+## ArchivePolicyRulesController.
+##
+#
+fixtures:
+    - ConfigFixture
+
+defaults:
+  request_headers:
+    # User foobar
+    authorization: "basic Zm9vYmFyOg=="
+    content-type: application/json
+
+tests:
+
+# create dependent policy
+    - name: create archive policy
+      POST: /v1/archive_policy
+      request_headers:
+          # User admin
+          authorization: "basic YWRtaW46"
+      data:
+          name: low
+          definition:
+              - granularity: 1 hour
+      status: 201
+      response_headers:
+          location: $SCHEME://$NETLOC/v1/archive_policy/low
+
+# Attempt to create an archive policy rule
+
+    - name: create archive policy rule1
+      POST: /v1/archive_policy_rule
+      request_headers:
+        # User admin
+        authorization: "basic YWRtaW46"
+      data:
+        name: test_rule1
+        metric_pattern: "*"
+        archive_policy_name: low
+      status: 201
+      response_json_paths:
+        $.metric_pattern: "*"
+        $.archive_policy_name: low
+        $.name: test_rule1
+
+    - name: create archive policy rule 2
+      POST: /v1/archive_policy_rule
+      request_headers:
+        # User admin
+        authorization: "basic YWRtaW46"
+      data:
+        name: test_rule2
+        metric_pattern: "disk.foo.*"
+        archive_policy_name: low
+      status: 201
+      response_json_paths:
+        $.metric_pattern: disk.foo.*
+        $.archive_policy_name: low
+        $.name: test_rule2
+
+    - name: create archive policy rule 3
+      POST: /v1/archive_policy_rule
+      request_headers:
+        # User admin
+        authorization: "basic YWRtaW46"
+      data:
+        name: test_rule3
+        metric_pattern: "disk.*"
+        archive_policy_name: low
+      status: 201
+      response_json_paths:
+        $.metric_pattern: disk.*
+        $.archive_policy_name: low
+        $.name: test_rule3
+
+
+# Attempt to create an invalid policy rule
+
+    - name: create invalid archive policy rule
+      POST: /v1/archive_policy_rule
+      request_headers:
+        # User admin
+        authorization: "basic YWRtaW46"
+      data:
+        name: test_rule
+        metric_pattern: "disk.foo.*"
+      status: 400
+
+    - name: create archive policy rule with invalid archive policy
+      POST: /v1/archive_policy_rule
+      request_headers:
+        # User admin
+        authorization: "basic YWRtaW46"
+        accept: application/json
+        content-type: application/json
+      data:
+        name: test_rule
+        archive_policy_name: not-exists
+        metric_pattern: "disk.foo.*"
+      status: 400
+      response_json_paths:
+        $.code: 400
+        $.description.cause: "Archive policy does not exist"
+        $.description.detail: not-exists
+
+    - name: missing auth archive policy rule
+      POST: /v1/archive_policy_rule
+      request_headers:
+          content-type: application/json
+      data:
+        name: test_rule
+        metric_pattern: "disk.foo.*"
+        archive_policy_name: low
+      status: 403
+
+    - name: wrong content type
+      POST: /v1/archive_policy_rule
+      request_headers:
+          content-type: text/plain
+          # User admin
+          authorization: "basic YWRtaW46"
+      status: 415
+      response_strings:
+          - Unsupported Media Type
+
+    - name: wrong auth create rule
+      POST: /v1/archive_policy_rule
+      data:
+          name: test_rule_wrong_auth
+          metric_pattern: "disk.foo.*"
+          archive_policy_name: low
+      status: 403
+
+    - name: missing auth createrule
+      POST: /v1/archive_policy_rule
+      request_headers:
+          content-type: application/json
+      data:
+          name: test_rule_miss_auth
+          metric_pattern: "disk.foo.*"
+          archive_policy_name: low
+      status: 403
+
+    - name: bad request body
+      POST: /v1/archive_policy_rule
+      request_headers:
+        # User admin
+        accept: application/json
+        authorization: "basic YWRtaW46"
+      data:
+          whaa: foobar
+      status: 400
+      response_json_paths:
+        $.description.cause: "Invalid input"
+        $.description.reason: "/^extra keys not allowed @ data/"
+        $.description.detail: ["whaa"]
+
+# get an archive policy rules
+
+    - name: get archive policy rule
+      GET: /v1/archive_policy_rule
+      status: 200
+      response_json_paths:
+        $.[0].metric_pattern: disk.foo.*
+        $.[1].metric_pattern: disk.*
+        $.[2].metric_pattern: "*"
+
+    - name: get unknown archive policy rule
+      GET: /v1/archive_policy_rule/foo
+      status: 404
+
+    - name: delete used archive policy
+      DELETE: /v1/archive_policy/low
+      request_headers:
+        # User admin
+        authorization: "basic YWRtaW46"
+      status: 400
+
+# rename an archive policy rule
+
+    - name: rename archive policy rule with missing name
+      PATCH: /v1/archive_policy_rule/test_rule3
+      request_headers:
+        # User admin
+        authorization: "basic YWRtaW46"
+      status: 400
+
+    - name: rename archive policy rule
+      PATCH: /v1/archive_policy_rule/test_rule3
+      request_headers:
+        # User admin
+        authorization: "basic YWRtaW46"
+      data:
+          name: test_rule3_renamed
+      status: 200
+
+    - name: get renamed archive policy rule
+      GET: /v1/archive_policy_rule/test_rule3_renamed
+      status: 200
+      response_json_paths:
+        $.metric_pattern: disk.*
+        $.archive_policy_name: low
+        $.name: test_rule3_renamed
+
+    - name: old archive policy rule doesn't exist
+      GET: /v1/archive_policy_rule/test_rule3
+      status: 404
+
+    - name: rename archive policy rule with existing name
+      PATCH: /v1/archive_policy_rule/test_rule2
+      request_headers:
+        # User admin
+        authorization: "basic YWRtaW46"
+      data:
+          name: test_rule3_renamed
+      status: 400
+      response_strings:
+          - 'Archive policy rule test_rule3_renamed already exists.'
+
+# delete rule as non admin
+
+    - name: delete archive policy rule non admin
+      DELETE: /v1/archive_policy_rule/test_rule1
+      status: 403
+
+# delete rule
+
+    - name: delete archive policy rule1
+      DELETE: /v1/archive_policy_rule/test_rule1
+      request_headers:
+        # User admin
+        authorization: "basic YWRtaW46"
+      status: 204
+
+    - name: delete archive policy rule2
+      DELETE: /v1/archive_policy_rule/test_rule2
+      request_headers:
+        # User admin
+        authorization: "basic YWRtaW46"
+      status: 204
+
+
+    - name: delete archive policy rule3
+      DELETE: /v1/archive_policy_rule/test_rule3_renamed
+      request_headers:
+        # User admin
+        authorization: "basic YWRtaW46"
+      status: 204
+
+# delete again
+
+    - name: confirm delete archive policy rule
+      DELETE: /v1/archive_policy_rule/test_rule1
+      request_headers:
+        # User admin
+        authorization: "basic YWRtaW46"
+      status: 404
+
+    - name: delete missing archive policy rule utf8
+      DELETE: /v1/archive_policy_rule/%E2%9C%94%C3%A9%C3%B1%E2%98%83
+      request_headers:
+        # User admin
+        authorization: "basic YWRtaW46"
+      status: 404
+      response_strings:
+          - Archive policy rule ✔éñ☃ does not exist
