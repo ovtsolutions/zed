@@ -1,0 +1,13 @@
+{
+  "completed": "2023-12-13T13:42:00.489516Z",
+  "periodic": true,
+  "started": "2023-12-13T13:41:58.151023Z",
+  "versions": [
+    {
+      "filename": "setuptools-69.0.2-py3-none-any.whl",
+      "found_date": "2023-12-13T13:41:58.398175Z",
+      "release_date": "2023-11-21T19:00:58.000000Z",
+      "source": "periodic"
+    }
+  ]
+}

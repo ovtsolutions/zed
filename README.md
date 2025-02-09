@@ -1,2 +1,2 @@
-# zed
-OVT Cloud Platform
+# OVT Cloud Platform
+

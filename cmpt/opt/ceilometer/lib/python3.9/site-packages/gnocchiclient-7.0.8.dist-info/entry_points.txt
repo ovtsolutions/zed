@@ -1,0 +1,50 @@
+[console_scripts]
+gnocchi = gnocchiclient.shell:main
+
+[keystoneauth1.plugin]
+gnocchi-basic = gnocchiclient.auth:GnocchiBasicLoader
+gnocchi-noauth = gnocchiclient.auth:GnocchiNoAuthLoader
+
+[openstack.cli.extension]
+metric = gnocchiclient.osc
+
+[openstack.metric.v1]
+metric_aggregates = gnocchiclient.v1.aggregates_cli:CliAggregates
+metric_archive-policy-rule_create = gnocchiclient.v1.archive_policy_rule_cli:CliArchivePolicyRuleCreate
+metric_archive-policy-rule_delete = gnocchiclient.v1.archive_policy_rule_cli:CliArchivePolicyRuleDelete
+metric_archive-policy-rule_list = gnocchiclient.v1.archive_policy_rule_cli:CliArchivePolicyRuleList
+metric_archive-policy-rule_show = gnocchiclient.v1.archive_policy_rule_cli:CliArchivePolicyRuleShow
+metric_archive-policy_create = gnocchiclient.v1.archive_policy_cli:CliArchivePolicyCreate
+metric_archive-policy_delete = gnocchiclient.v1.archive_policy_cli:CliArchivePolicyDelete
+metric_archive-policy_list = gnocchiclient.v1.archive_policy_cli:CliArchivePolicyList
+metric_archive-policy_show = gnocchiclient.v1.archive_policy_cli:CliArchivePolicyShow
+metric_archive-policy_update = gnocchiclient.v1.archive_policy_cli:CliArchivePolicyUpdate
+metric_benchmark measures add = gnocchiclient.benchmark:CliBenchmarkMeasuresAdd
+metric_benchmark measures show = gnocchiclient.benchmark:CliBenchmarkMeasuresShow
+metric_benchmark metric create = gnocchiclient.benchmark:CliBenchmarkMetricCreate
+metric_benchmark metric show = gnocchiclient.benchmark:CliBenchmarkMetricShow
+metric_capabilities list = gnocchiclient.v1.capabilities_cli:CliCapabilitiesList
+metric_create = gnocchiclient.v1.metric_cli:CliMetricCreate
+metric_delete = gnocchiclient.v1.metric_cli:CliMetricDelete
+metric_list = gnocchiclient.v1.metric_cli:CliMetricList
+metric_measures aggregation = gnocchiclient.v1.metric_cli:CliMeasuresAggregation
+metric_measures_add = gnocchiclient.v1.metric_cli:CliMeasuresAdd
+metric_measures_batch-metrics = gnocchiclient.v1.metric_cli:CliMetricsMeasuresBatch
+metric_measures_batch-resources-metrics = gnocchiclient.v1.metric_cli:CliResourcesMetricsMeasuresBatch
+metric_measures_show = gnocchiclient.v1.metric_cli:CliMeasuresShow
+metric_resource-type_create = gnocchiclient.v1.resource_type_cli:CliResourceTypeCreate
+metric_resource-type_delete = gnocchiclient.v1.resource_type_cli:CliResourceTypeDelete
+metric_resource-type_list = gnocchiclient.v1.resource_type_cli:CliResourceTypeList
+metric_resource-type_show = gnocchiclient.v1.resource_type_cli:CliResourceTypeShow
+metric_resource-type_update = gnocchiclient.v1.resource_type_cli:CliResourceTypeUpdate
+metric_resource_batch_delete = gnocchiclient.v1.resource_cli:CliResourceBatchDelete
+metric_resource_create = gnocchiclient.v1.resource_cli:CliResourceCreate
+metric_resource_delete = gnocchiclient.v1.resource_cli:CliResourceDelete
+metric_resource_history = gnocchiclient.v1.resource_cli:CliResourceHistory
+metric_resource_list = gnocchiclient.v1.resource_cli:CliResourceList
+metric_resource_search = gnocchiclient.v1.resource_cli:CliResourceSearch
+metric_resource_show = gnocchiclient.v1.resource_cli:CliResourceShow
+metric_resource_update = gnocchiclient.v1.resource_cli:CliResourceUpdate
+metric_server_version = gnocchiclient.v1.build_cli:CliBuildShow
+metric_show = gnocchiclient.v1.metric_cli:CliMetricShow
+metric_status = gnocchiclient.v1.status_cli:CliStatusShow

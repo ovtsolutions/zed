@@ -1,0 +1,6 @@
+[oslo.config.opts]
+os_brick = os_brick.opts:list_opts
+
+[oslo.config.opts.defaults]
+os_brick = os_brick.opts:set_defaults
+

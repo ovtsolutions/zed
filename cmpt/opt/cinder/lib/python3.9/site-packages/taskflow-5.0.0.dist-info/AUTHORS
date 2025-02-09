@@ -1,0 +1,114 @@
+Adam Harwell <flux.adam@gmail.com>
+Alexander Gorodnev <agorodnev@griddynamics.com>
+Anastasia Karpinska <akarpinska at griddynamics.com>
+Anastasia Karpinska <akarpinska@griddynamics.com>
+Andreas Jaeger <aj@suse.com>
+Angus Salkeld <asalkeld@redhat.com>
+Ann Kamyshnikova <akamyshnikova@mirantis.com>
+Ann Taraday <akamyshnikova@mirantis.com>
+Atsushi SAKAI <sakaia@jp.fujitsu.com>
+Balaji Narayanan <lists@balajin.net>
+Ben Nemec <bnemec@redhat.com>
+Brian Jarrett <celttechie@gmail.com>
+ChangBo Guo(gcb) <eric.guo@easystack.cn>
+Changbin Liu <changbl@research.att.com>
+Christian Berendt <berendt@b1-systems.de>
+Chuck Short <chuck.short@canonical.com>
+Corey Bryant <corey.bryant@canonical.com>
+Cyril Roelandt <cyril.roelandt@enovance.com>
+Dan Krause <dan.krause@rackspace.com>
+Daniel Bengtsson <dbengt@redhat.com>
+Davanum Srinivas <davanum@gmail.com>
+Dirk Mueller <dirk@dmllr.de>
+Doug Hellmann <doug.hellmann@dreamhost.com>
+Doug Hellmann <doug@doughellmann.com>
+Elod Illes <elod.illes@est.tech>
+Eric Harney <eharney@redhat.com>
+Flavio Percoco <flaper87@gmail.com>
+Fredrik Bergroth <fbergroth@gmail.com>
+Gevorg Davoian <gdavoian@mirantis.com>
+Ghanshyam Mann <gmann@ghanshyammann.com>
+Greg Hill <greg.hill@rackspace.com>
+Gregory Thiemonge <gthiemon@redhat.com>
+Ha Manh Dong <donghm@vn.fujitsu.com>
+Hervé Beraud <hberaud@redhat.com>
+Ihar Hrachyshka <ihrachys@redhat.com>
+Ivan A. Melnikov <imelnikov@griddynamics.com>
+Ivan A. Melnikov <iv@altlinux.org>
+Ivan Kolodyazhny <e0ne@e0ne.info>
+Ivan Melnikov <iv@altlinux.org>
+James Page <james.page@ubuntu.com>
+Jay S. Bryant <jsbryant@us.ibm.com>
+Jeremy Stanley <fungi@yuggoth.org>
+Jessica Lucci <jessica.lucci@rackspace.com>
+Ji-Wei <ji.wei3@zte.com.cn>
+Joe Gordon <joe.gordon0@gmail.com>
+Joshua Harlow <harlowja@gmail.com>
+Joshua Harlow <harlowja@yahoo-inc.com>
+Joshua Harlow <jxharlow@godaddy.com>
+Kevin Chen <kevin.chen@rackspace.com>
+Luong Anh Tuan <tuanla@vn.fujitsu.com>
+Manish Godara <manishg@yahoo-inc.com>
+Matthew Thode <mthode@mthode.org>
+Michael Johnson <johnsomor@gmail.com>
+Michal Arbet <michal.arbet@ultimum.io>
+Min Pae <sputnik13@gmail.com>
+Monty Taylor <mordred@inaugust.com>
+Olga Kopylova <olkonami@gmail.com>
+Ondřej Nový <ondrej.novy@firma.seznam.cz>
+OpenStack Release Bot <infra-root@openstack.org>
+Pablo Iranzo Gómez <Pablo.Iranzo@gmail.com>
+Pavlo Shchelokovskyy <shchelokovskyy@gmail.com>
+Rafael Rivero <rafael@cloudscaling.com>
+Rick van de Loo <rickvandeloo@gmail.com>
+Sahid Orentino Ferdjaoui <sahid.ferdjaoui@canonical.com>
+Sascha Peilicke <speilicke@suse.com>
+Sean McGinnis <sean.mcginnis@gmail.com>
+Sriram Madapusi Vasudevan <sriram@klusterkloud.com>
+Stanislav Kudriashev <skudriashev@griddynamics.com>
+Stanislav Kudriashev <stas.kudriashev@gmail.com>
+Stephen Finucane <stephenfin@redhat.com>
+Suneel Bomminayuni <suneelb@yahoo-inc.com>
+Takashi Kajinami <tkajinam@redhat.com>
+Theodoros Tsioutsias <theodoros.tsioutsias@cern.ch>
+Thomas Bechtold <tbechtold@suse.com>
+Thomas Bechtold <thomasbechtold@jpberlin.de>
+Timofey Durakov <tdurakov@mirantis.com>
+Tony Breeds <tony@bakeyournoodle.com>
+Victor Rodionov <vito.ordaz@gmail.com>
+Vilobh Meshram <vilobhmm@yahoo-inc.com>
+Vu Cong Tuan <tuanvc@vn.fujitsu.com>
+XiaojueGuan <guanalbertjone@gmail.com>
+YAMAMOTO Takashi <yamamoto@valinux.co.jp>
+Zhao Lei <zhaolei@cn.fujitsu.com>
+Zhihai Song <zhihai.song@easystack.cn>
+baiwenteng <baiwenteng@inspur.com>
+chenghuiyu <yuchenghui@unionpay.com>
+gecong1973 <ge.cong@zte.com.cn>
+gengchc2 <geng.changcai2@zte.com.cn>
+haobing1 <hao.bing1@zte.com.cn>
+howardlee <lihongweibj@inspur.com>
+ji-xuepeng <ji.xuepeng@zte.com.cn>
+jiansong <jiansong19941206@gmail.com>
+leizhang <lei.a.zhang@intel.com>
+lin-hua-cheng <os.lcheng@gmail.com>
+liuqing <jing.liuqing@99cloud.net>
+liuwei <liuw147@chinaunicom.cn>
+luke.li <lilu7189@fiberhome.com>
+maaoyu <maaoyu@inspur.com>
+melissaml <ma.lei@99cloud.net>
+qinchunhua <qin.chunhua@zte.com.cn>
+rahulram <rahurama@cisco.com>
+skudriashev <skudriashev@griddynamics.com>
+sunjia <sunjia@inspur.com>
+ting.wang <ting.wang@easystack.cn>
+tonytan4ever <tonytan198211@gmail.com>
+venkatamahesh <venkatamaheshkotha@gmail.com>
+wangqi <wang.qi@99cloud.net>
+weiweigu <gu.weiwei@zte.com.cn>
+wu.shiming <wushiming@yovole.com>
+xhzhf <guoyongxhzhf@163.com>
+xuanyandong <xuanyandong@inspur.com>
+yangxurong <yangxurong@huawei.com>
+zhang.lei <zhang.lei@99cloud.net>
+zhangzs <zhangzhaoshan@inspur.com>

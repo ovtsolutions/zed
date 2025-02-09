@@ -1,0 +1,15 @@
+[Unit]
+Description=ceilometer-agent-compute
+
+[Service]	
+WorkingDirectory=/opt/ceilometer/bin
+User=ceilometer
+Group=ceilometer
+ExecStart=/opt/ceilometer/bin/ceilometer-polling --polling-namespaces compute
+Restart=always
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target
