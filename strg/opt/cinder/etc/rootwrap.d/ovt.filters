@@ -1,0 +1,17 @@
+# OVT LLC www.ovtsolutions.ru
+[Filters]
+# cinder/volumes/drivers/ovt/lvm.py: 'lvcreate', '-L', sizestr, '-n', volume_name, ...
+lvcreate: CommandFilter, lvcreate, root
+
+# cinder/volume/drivers/ovt/zfs.py
+zfs: CommandFilter, zfs, root
+zpool: CommandFilter, zpool, root
+
+# move zfs-migrate commands to zfs.py
+zfs-migrate: CommandFilter, zfs-migrate, root
+zfs-clone: CommandFilter, zfs-clone, root
+
+# cinder/volume/drivers/glusterfs.py
+chgrp: CommandFilter, chgrp, root
+umount: CommandFilter, umount, root
+fallocate: CommandFilter, fallocate, root
