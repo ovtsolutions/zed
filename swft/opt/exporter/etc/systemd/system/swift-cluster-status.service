@@ -1,0 +1,15 @@
+[Unit]
+Description=swift-cluster-status
+
+[Service]
+WorkingDirectory=/opt/exporter
+#User=swift
+#Group=swift
+ExecStart=python3 /opt/exporter/swift-cluster-status.py /opt/exporter/etc/cluster-status.conf
+Restart=always
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target
